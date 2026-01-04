@@ -61,7 +61,7 @@ export class TemperatureGauge extends Gauge {
   generateMask() {
     const percentage = this.getPercentage();
     const fillHeight = (140 * percentage) / 100;
-    const y = 150 - fillHeight + 48;
+    const y = 100 - fillHeight + 48;
     
     return `
       <defs>
