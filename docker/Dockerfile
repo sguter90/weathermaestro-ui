@@ -6,11 +6,11 @@ WORKDIR /app
 
 # Copy package.json and package-lock.json to install dependencies
 # Use npm ci for clean install based on package-lock.json
-COPY ../package.json package-lock.json ./
+COPY package.json package-lock.json ./
 RUN npm ci
 
 # Copy the rest of the application code
-COPY .. .
+COPY . .
 
 # Build the application
 RUN npm run build
@@ -22,7 +22,7 @@ FROM nginx:alpine
 RUN rm /etc/nginx/conf.d/default.conf
 
 # Copy custom Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/weathermaestro-ui.conf
+COPY docker/nginx.conf /etc/nginx/conf.d/weathermaestro-ui.conf
 
 # Copy the built application files from the builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
