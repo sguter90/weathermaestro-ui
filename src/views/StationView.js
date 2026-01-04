@@ -7,12 +7,14 @@ import { CircularGauge } from "../components/CircularGauge.js";
 import { WindCompass } from "../components/WindCompass.js";
 import { RainGauge } from "../components/RainGauge.js";
 import { UVIndexGauge } from "../components/UVIndexGauge.js";
+import {renderBreadcrumbs} from "../components/Breadcrumbs.js";
 
 export async function renderStationView(params) {
   const { id } = params;
   viewManager.showLoading('Loading weather data...');
 
   try {
+    const station = await api.getStation(id);
     const weatherData = await api.getStationWeather(id);
     
     // Create gauges
@@ -61,59 +63,58 @@ export async function renderStationView(params) {
     });
     
     const uvGauge = new UVIndexGauge({
-      value: weatherData.uv +2 ,
+      value: weatherData.uv ,
       id: 'uv-gauge',
     });
     
     const html = `
+      ${renderBreadcrumbs([
+        { label: 'Home', url: '/' },
+        { label: station.getDisplayName(), url: `/station/${id}` },
+      ])}
       <div class="station-view">
-        <button onclick="router.navigate('/')">← Back to Stations</button>
-        
         <h1>Current Weather</h1>
         <p class="timestamp">${weatherData.getFormattedDate()}</p>
         
-        <div class="gauges-grid">
-          <div class="gauge-container">
-            <h3>Temperature</h3>
-            ${tempGauge.render()}
-          </div>
-          
-          <div class="gauge-container">
-            <h3>Humidity</h3>
-            ${humidityGauge.render()}
-          </div>
-          
-          <div class="gauge-container">
-            <h3>Wind</h3>
-            ${windCompass.render()}
-          </div>
-          
-          <div class="gauge-container">
-            <h3>Pressure</h3>
-            ${pressureGauge.render()}
-          </div>
-          
-          <div class="gauge-container">
-            <h3>Daily Rain</h3>
-            ${rainGauge.render()}
-          </div>
-          
-          <div class="gauge-container">
-            <h3>UV Index</h3>
-            ${uvGauge.render()}
-            <p class="gauge-info">${weatherData.getUVCategory()}</p>
-          </div>
-        </div>
-        
-        <div class="weather-details">
-          <h2>Additional Details</h2>
-          <div class="details-grid">
-            <div class="detail-card">
-              <span class="detail-label">UV Index</span>
-              <span class="detail-value">${weatherData.uv}</span>
-              <span class="detail-info">${weatherData.getUVCategory()}</span>
+        <section class="current-conditions">
+          <h2>Current Measurements</h2>
+          <div class="gauges-grid">
+            <div class="gauge-container">
+              <h3>Temperature</h3>
+              ${tempGauge.render()}
             </div>
             
+            <div class="gauge-container">
+              <h3>Humidity</h3>
+              ${humidityGauge.render()}
+            </div>
+            
+            <div class="gauge-container">
+              <h3>Wind</h3>
+              ${windCompass.render()}
+            </div>
+            
+            <div class="gauge-container">
+              <h3>Pressure</h3>
+              ${pressureGauge.render()}
+            </div>
+            
+            <div class="gauge-container">
+              <h3>Daily Rain</h3>
+              ${rainGauge.render()}
+            </div>
+            
+            <div class="gauge-container">
+              <h3>UV Index</h3>
+              ${uvGauge.render()}
+              <p class="gauge-info">${weatherData.getUVCategory()}</p>
+            </div>
+          </div>
+        </section>
+        
+        <section class="weather-details">
+          <h2>Additional Details</h2>
+          <div class="details-grid">
             <div class="detail-card">
               <span class="detail-label">Rain (Hourly)</span>
               <span class="detail-value">${weatherData.hourlyRainMm.toFixed(1)} mm</span>
@@ -134,7 +135,7 @@ export async function renderStationView(params) {
               <span class="detail-value">${weatherData.humidityIn}%</span>
             </div>
           </div>
-        </div>
+        </section>
         
         <button class="history-button" onclick="router.navigate('/station/${id}/history')">
           View History →

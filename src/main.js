@@ -1,3 +1,4 @@
+import './styles/main.css';
 import * as api from './api/client';
 import { router } from './Router.js';
 import { renderHomeView } from './views/HomeView.js';

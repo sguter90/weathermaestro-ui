@@ -1,6 +1,8 @@
+import * as api from '../api/client.js';
 import { viewManager } from '../ViewManager.js';
 import { router } from '../Router.js';
-import * as api from '../api/client.js';
+import { getWindDirectionLabel } from '../utils/weather.js';
+import {renderBreadcrumbs} from "../components/Breadcrumbs.js"; // Importiere die Funktion
 
 export async function renderHomeView() {
   viewManager.showLoading('Loading stations...');
@@ -9,16 +11,38 @@ export async function renderHomeView() {
     const stations = await api.getStations();
     
     const html = `
+      ${renderBreadcrumbs([
+        {label: 'Home', url: '/'},
+      ])}
       <div class="home-view">
         <h1>Weather Stations</h1>
         <div class="stations-grid">
           ${stations.map(station => `
             <div class="station-card" onclick="router.navigate('/station/${station.id}')">
               <h3>${station.getDisplayName()}</h3>
-              <p>Interval: ${station.getIntervalDisplay()}</p>
               <span class="status ${station.isActive() ? 'active' : 'inactive'}">
                 ${station.isActive() ? 'Active' : 'Inactive'}
               </span>
+              ${station.latestData ? `
+                <div class="station-details">
+                  <div class="station-detail-item">
+                    <span class="icon"><i class="fa-solid fa-temperature-half"></i></span>
+                    <span class="value">${station.latestData.tempOutC.toFixed(1)} °C</span>
+                  </div>
+                  <div class="station-detail-item">
+                    <span class="icon"><i class="fa-solid fa-droplet"></i></span>
+                    <span class="value">${station.latestData.humidityOut}%</span>
+                  </div>
+                  <div class="station-detail-item">
+                    <span class="icon"><i class="fa-solid fa-wind"></i></span>
+                    <span class="value">${station.latestData.windSpeedKmH.toFixed(1)} km/h (${getWindDirectionLabel(station.latestData.windDir)})</span>
+                  </div>
+                  <div class="station-detail-item">
+                    <span class="icon"><i class="fa-solid fa-gauge-high"></i></span>
+                    <span class="value">${station.latestData.baromAbsHPa.toFixed(1)} hPa</span>
+                  </div>
+                </div>
+              ` : '<p class="no-data">No recent data available.</p>'}
             </div>
           `).join('')}
         </div>

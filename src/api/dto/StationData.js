@@ -1,3 +1,5 @@
+import {WeatherData} from "./WeatherData.js";
+
 /**
  * StationData DTO - Represents a weather station
  */
@@ -9,6 +11,8 @@ export class StationData {
     this.model = data.model || '';
     this.freq = data.freq || '';
     this.interval = data.interval || 0;
+    this.lastUpdate = data.last_update ? new Date(data.last_update) : null;
+    this.latestData = data.latestData ? new WeatherData(data.latestData) : null;
   }
 
   /**
@@ -37,7 +41,11 @@ export class StationData {
    * Check if station is active (has valid configuration)
    */
   isActive() {
-    return this.id && this.passKey && this.interval > 0;
+    const now = new Date();
+
+    console.log(this.lastUpdate, now);
+
+    return this.lastUpdate && this.lastUpdate.getTime() + 120_000 > now.getTime();
   }
 
   /**
