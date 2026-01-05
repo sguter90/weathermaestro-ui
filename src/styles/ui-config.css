@@ -62,55 +62,7 @@
   box-shadow: 0 2px 6px rgba(52, 152, 219, 0.3);
 }
 
-/* Unit Switcher Container */
-
-/* Unit Switcher */
-.ui-config {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.unit-label {
-  font-weight: 500;
-  font-size: 14px;
-  color: #333;
-}
-
-.unit-options {
-  display: flex;
-  gap: 8px;
-}
-
-.unit-radio {
-  flex: 1;
-}
-
-.unit-radio input[type="radio"] {
-  display: none;
-}
-
-.unit-radio label {
-  display: block;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 14px;
-}
-
-.unit-radio input[type="radio"]:checked + label {
-  background-color: #4CAF50;
-  color: white;
-  border-color: #4CAF50;
-}
-
-.unit-radio label:hover {
-  border-color: #999;
-}
-
+/* Unit Configuration */
 .ui-config {
   display: grid;
   grid-template-columns: 1fr;
@@ -139,29 +91,24 @@
 }
 
 .unit-radio {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  flex: 1;
 }
 
 .unit-radio input[type="radio"] {
-  cursor: pointer;
-  width: 16px;
-  height: 16px;
-  accent-color: var(--primary-color);
-  flex-shrink: 0;
+  display: none;
 }
 
 .unit-radio label {
+  display: block;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  text-align: center;
   cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  background-color: #fff;
   color: #555;
-  font-size: 0.9em;
-  margin: 0;
-  flex-grow: 1;
-  padding: 4px 6px;
-  border-radius: 3px;
-  transition: background-color 0.15s ease;
-  white-space: nowrap;
 }
 
 .unit-radio input[type="radio"]:checked + label {
@@ -171,7 +118,7 @@
 }
 
 .unit-radio label:hover {
-  background-color: rgba(52, 152, 219, 0.05);
+  border-color: #999;
 }
 
 /* Time Settings */
@@ -222,46 +169,40 @@
 }
 
 .time-format-options {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  display: flex;
+  gap: 8px;
 }
 
 .time-format-radio {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  flex: 1;
 }
 
 .time-format-radio input[type="radio"] {
-  cursor: pointer;
-  width: 16px;
-  height: 16px;
-  accent-color: var(--primary-color);
-  flex-shrink: 0;
+  display: none;
 }
 
 .time-format-radio label {
+  display: block;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  text-align: center;
   cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  background-color: #fff;
   color: #555;
-  font-size: 0.9em;
-  margin: 0;
-  flex-grow: 1;
-  padding: 4px 6px;
-  border-radius: 3px;
-  transition: background-color 0.15s ease;
-  white-space: nowrap;
-  font-weight: normal;
 }
 
 .time-format-radio input[type="radio"]:checked + label {
-  background-color: rgba(52, 152, 219, 0.1);
-  color: var(--primary-color);
+  background-color: #4CAF50;
+  color: white;
+  border-color: #4CAF50;
   font-weight: 600;
 }
 
 .time-format-radio label:hover {
-  background-color: rgba(52, 152, 219, 0.05);
+  border-color: #999;
 }
 
 /* Responsive adjustments */
@@ -281,7 +222,11 @@
     padding: 8px;
   }
 
+  .unit-options {
+    flex-direction: column;
+  }
+
   .time-format-options {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
 }

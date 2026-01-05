@@ -1,0 +1,102 @@
+.history-view {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.history-view h1 {
+  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2em;
+}
+
+.history-view button {
+  background-color: #6c757d;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.3s ease;
+  margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.history-view button:hover {
+  background-color: #5a6268;
+}
+
+.history-table {
+  overflow-x: auto;
+}
+
+.history-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 0.9em;
+  min-width: 700px;
+}
+
+.history-table th,
+.history-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.history-table th {
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.history-table th i {
+  margin-right: 8px;
+  color: #007bff;
+}
+
+.history-table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.history-table tbody tr:hover {
+  background-color: #e9ecef;
+}
+
+.history-table td {
+  color: #343a40;
+}
+
+@media (max-width: 768px) {
+  .history-view {
+    padding: 15px;
+  }
+
+  .history-table th,
+  .history-table td {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .history-view h1 {
+    font-size: 1.5em;
+  }
+
+  .history-view button {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}
