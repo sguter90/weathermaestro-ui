@@ -1,13 +1,12 @@
-
 import { i18n } from '../i18n/i18n.js';
-import { unitManager } from '../utils/UnitManager.js';
-import { timeManager } from '../utils/TimeManager.js';
+import { uiConfigManager } from '../utils/UiConfigManager.js';
 import { UnitConfig, UnitPresets } from '../utils/UnitConfig.js';
 import { TIMEZONES } from '../utils/timezones.js';
-import { translations } from '../i18n/translations.js';
 
-export class UnitSwitcher {
-  constructor(containerId = 'unit-switcher') {
+import {translations} from "../i18n/translations.js";
+
+export class UiConfig {
+  constructor(containerId = 'ui-config') {
     this.containerId = containerId;
     this.container = document.getElementById(containerId);
     this.init();
@@ -21,16 +20,14 @@ export class UnitSwitcher {
     this.render();
 
     // Re-render when language, units or time settings change
-    i18n.subscribe(() => this.render());
-    unitManager.subscribe(() => this.render());
-    timeManager.subscribe(() => this.render());
+    uiConfigManager.subscribe(() => this.render());
   }
 
   renderRegionalSettings() {
-    const currentLang = i18n.getLanguage();
-    const languages = i18n.getAvailableLanguages();
-    const currentTimezone = timeManager.getTimezone();
-    const currentDateFormat = timeManager.getDateFormat();
+    const currentLang = uiConfigManager.getLanguage();
+    const languages = uiConfigManager.getAvailableLanguages();
+    const currentTimezone = uiConfigManager.getTimezone();
+    const currentDateFormat = uiConfigManager.getDateFormat();
 
     const dateFormats = [
       { value: 'DD/MM/YYYY', label: 'DD/MM/YYYY' },
@@ -44,7 +41,7 @@ export class UnitSwitcher {
       <div class="settings-section">
         <h3>${i18n.t('REGIONAL_SETTINGS')}</h3>
         
-        <div class="unit-switcher">
+        <div class="ui-config">
           <!-- Language -->
           <div class="unit-type">
             <label for="lang-select">${i18n.t('LANGUAGE')}</label>
@@ -98,7 +95,7 @@ export class UnitSwitcher {
 
   renderUnitType(type, label) {
     const options = UnitConfig[type];
-    const currentUnit = unitManager.getUnit(type);
+    const currentUnit = uiConfigManager.getUnit(type);
 
     return `
       <div class="unit-type">
@@ -126,7 +123,7 @@ export class UnitSwitcher {
         
         ${this.renderPresets()}
         
-        <div class="unit-switcher">
+        <div class="ui-config">
           ${this.renderUnitType('temperature', i18n.t('TEMPERATURE'))}
           ${this.renderUnitType('windSpeed', i18n.t('WIND'))}
           ${this.renderUnitType('pressure', i18n.t('PRESSURE'))}
@@ -145,13 +142,13 @@ export class UnitSwitcher {
 
     // Language select
     document.getElementById('lang-select')?.addEventListener('change', (e) => {
-      i18n.setLanguage(e.target.value);
+      uiConfigManager.setLanguage(e.target.value);
     });
 
     // Preset buttons
     document.querySelectorAll('.preset-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        unitManager.setPreset(e.target.dataset.preset);
+        uiConfigManager.setPreset(e.target.dataset.preset);
       });
     });
 
@@ -159,17 +156,17 @@ export class UnitSwitcher {
     document.querySelectorAll('input[name^="unit-"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
         const type = e.target.name.replace('unit-', '');
-        unitManager.setUnits({ [type]: e.target.value });
+        uiConfigManager.setUnits({ [type]: e.target.value });
       });
     });
 
     // Time settings
     document.getElementById('timezone-select')?.addEventListener('change', (e) => {
-      timeManager.setTimezone(e.target.value);
+      uiConfigManager.setTimezone(e.target.value);
     });
 
     document.getElementById('date-format-select')?.addEventListener('change', (e) => {
-      timeManager.setDateFormat(e.target.value);
+      uiConfigManager.setDateFormat(e.target.value);
     });
   }
 }

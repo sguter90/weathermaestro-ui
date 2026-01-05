@@ -1,6 +1,4 @@
-
-import { i18n } from '../i18n/i18n.js';
-import { timeManager } from './TimeManager.js';
+import { uiConfigManager } from './UiConfigManager.js';
 
 export const TIMEZONES = [
   'UTC',
@@ -46,7 +44,7 @@ const LANGUAGE_LOCALE_MAP = {
 };
 
 function getLocale() {
-  const currentLanguage = i18n.getLanguage();
+  const currentLanguage = uiConfigManager.getLanguage();
   return LANGUAGE_LOCALE_MAP[currentLanguage] || 'en-US';
 }
 
@@ -69,8 +67,8 @@ function formatWithIntl(date, timezone, options) {
 }
 
 export function formatDate(date, timezone = null) {
-  const tz = timezone || timeManager.getTimezone();
-  const dateFormat = timeManager.getDateFormat();
+  const tz = timezone || uiConfigManager.getTimezone();
+  const dateFormat = uiConfigManager.getDateFormat();
   
   const values = formatWithIntl(date, tz, {
     year: 'numeric',
@@ -85,7 +83,7 @@ export function formatDate(date, timezone = null) {
 }
 
 export function formatTime(date, timezone = null) {
-  const tz = timezone || timeManager.getTimezone();
+  const tz = timezone || uiConfigManager.getTimezone();
   
   const values = formatWithIntl(date, tz, {
     hour: '2-digit',
@@ -98,8 +96,8 @@ export function formatTime(date, timezone = null) {
 }
 
 export function formatDateTime(date, timezone = null) {
-  const tz = timezone || timeManager.getTimezone();
-  const dateFormat = timeManager.getDateFormat();
+  const tz = timezone || uiConfigManager.getTimezone();
+  const dateFormat = uiConfigManager.getDateFormat();
   
   const values = formatWithIntl(date, tz, {
     year: 'numeric',

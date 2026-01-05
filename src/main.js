@@ -6,22 +6,19 @@ import {renderHomeView} from './views/HomeView.js';
 import {renderStationView} from './views/StationView.js';
 import {renderHistoryView} from './views/HistoryView.js';
 import {OffCanvasManager} from "./components/OffCanvasManager.js";
-import {UnitSwitcher} from "./components/UnitSwitcher.js";
-import {unitManager} from "./utils/UnitManager.js";
-import {timeManager} from "./utils/TimeManager.js";
-import {i18n} from "./i18n/i18n.js";
+import {UiConfig} from "./components/UiConfig.js";
+import {uiConfigManager} from "./utils/UiConfigManager.js";
 
 // Make API available globally for debugging
 window.api = api;
 window.router = router;
-window.unitSwitcher = unitManager;
-window.timeManager = timeManager;
+window.uiConfigManager = uiConfigManager;
 
 document.addEventListener('DOMContentLoaded', () => {
     updateDynamicContent();
 
     new OffCanvasManager();
-    new UnitSwitcher('unit-switcher');
+    new UiConfig('ui-config');
 });
 
 // Define routes
@@ -38,14 +35,7 @@ window.router
     `;
     });
 
-i18n.subscribe(() => {
-    router.handleRoute();
-});
-window.unitSwitcher.subscribe(() => {
-    router.handleRoute();
-})
-
-window.timeManager.subscribe(() => {
+window.uiConfigManager.subscribe(() => {
     router.handleRoute();
 })
 

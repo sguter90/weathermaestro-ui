@@ -1,5 +1,5 @@
 import {i18n} from "../../i18n/i18n.js";
-import {unitManager} from "../../utils/UnitManager.js";
+import {uiConfigManager} from "../../utils/UiConfigManager.js";
 
 /**
  * WeatherData DTO - Represents weather data from a weather station
@@ -81,56 +81,56 @@ export class WeatherData {
    * Get outdoor temperature with unit conversion
    */
   getOutdoorTemp() {
-    return unitManager.convert(this.tempOutC, 'temperature');
+    return uiConfigManager.convert(this.tempOutC, 'temperature');
   }
 
   /**
    * Get temperature unit symbol
    */
   getTempUnit() {
-    return unitManager.getUnitLabel('temperature');
+    return uiConfigManager.getUnitLabel('temperature');
   }
 
   /**
    * Get wind speed with unit conversion
    */
   getWindSpeed() {
-    return unitManager.convert(this.windSpeedMS, 'windSpeed');
+    return uiConfigManager.convert(this.windSpeedMS, 'windSpeed');
   }
 
   /**
    * Get wind speed unit
    */
   getWindUnit() {
-    return unitManager.getUnitLabel('windSpeed');
+    return uiConfigManager.getUnitLabel('windSpeed');
   }
 
   /**
    * Get daily rain with unit conversion
    */
   getDailyRain() {
-    return unitManager.convert(this.dailyRainMm, 'rain');
+    return uiConfigManager.convert(this.dailyRainMm, 'rain');
   }
 
   /**
    * Get hourly rain with unit conversion
    */
   getHourlyRain() {
-    return unitManager.convert(this.hourlyRainMm, 'rain');
+    return uiConfigManager.convert(this.hourlyRainMm, 'rain');
   }
 
   /**
    * Get rain unit
    */
   getRainUnit() {
-    return unitManager.getUnitLabel('rain');
+    return uiConfigManager.getUnitLabel('rain');
   }
 
   /**
    * Get rain max value for gauge
    */
   getRainMax() {
-    const isMetric = unitManager.getUnit('rain') === 'MM';
+    const isMetric = uiConfigManager.getUnit('rain') === 'MM';
     return isMetric ? 100 : 4;
   }
 
@@ -138,21 +138,21 @@ export class WeatherData {
    * Get indoor temperature with unit conversion
    */
   getIndoorTemp() {
-    return unitManager.convert(this.tempInC, 'temperature');
+    return uiConfigManager.convert(this.tempInC, 'temperature');
   }
 
   /**
    * Get pressure with unit conversion
    */
   getPressure() {
-    return unitManager.convert(this.baromRelHPa, 'pressure');
+    return uiConfigManager.convert(this.baromRelHPa, 'pressure');
   }
 
   /**
    * Get pressure unit
    */
   getPressureUnit() {
-    return unitManager.getUnitLabel('pressure');
+    return uiConfigManager.getUnitLabel('pressure');
   }
 
   /**
