@@ -73,7 +73,7 @@ export async function renderStationView(params) {
             {label: station.getDisplayName(), url: `/station/${id}`},
         ])}
       <div class="station-view">
-        <h1>${i18n.t('CURRENT_WEATHER')}</h1>
+        <h1 class="view-header">${i18n.t('CURRENT_WEATHER')}</h1>
         <p class="timestamp">${dateFormatter.formatDateTime(weatherData.dateUTC)}</p>
         
         <section class="current-conditions">
@@ -137,7 +137,7 @@ export async function renderStationView(params) {
           </div>
         </section>
         
-        <a class="history-button" href="#/station/${id}/history">
+        <a class="btn btn-block" href="#/station/${id}/history">
           ${i18n.t('SHOW_HISTORY')} →
         </a>
       </div>

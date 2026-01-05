@@ -1,16 +1,3 @@
-.home-view {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.home-view h1 {
-  color: #333;
-  margin-bottom: 40px;
-  font-size: 2.5em;
-}
-
 .stations-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -21,7 +8,8 @@
 .station-card {
   background-color: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 3px rgba(var(--color-border-rgb), 0.8);
   padding: 25px;
   cursor: pointer;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -34,15 +22,14 @@
 }
 
 .station-card:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 20px rgba(var(--color-border-rgb), 1);
 }
 
 .station-card h3 {
-  color: #007bff;
+  color: var(--color-text-primary);
   margin-top: 0;
   margin-bottom: 10px;
-  font-size: 1.5em;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 10px;
 }
 

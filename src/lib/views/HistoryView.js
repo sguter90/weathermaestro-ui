@@ -22,7 +22,7 @@ export async function renderHistoryView(params) {
             {label: i18n.t('HISTORY'), url: `/station/${id}/history`}
         ])}
       <div class="history-view">
-        <h1>${i18n.t('WEATHER_HISTORY')}</h1>
+        <h1 class="view-header">${i18n.t('WEATHER_HISTORY')}</h1>
         
         <div class="history-table">
           <table>

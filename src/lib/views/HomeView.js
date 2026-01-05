@@ -16,7 +16,7 @@ export async function renderHomeView() {
             {label: i18n.t('HOME'), url: '/'},
         ])}
       <div class="home-view">
-        <h1>${i18n.t('WEATHER_STATIONS')}</h1>
+        <h1 class="view-header">${i18n.t('WEATHER_STATIONS')}</h1>
         <div class="stations-grid">
           ${stations.map(station => `
             <a class="station-card" href="#/station/${station.id}">
