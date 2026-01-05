@@ -1,9 +1,9 @@
-
 import { router } from '../Router.js';
 import * as api from '../api/client.js';
 import { viewManager } from '../ViewManager.js';
 import { getWindDirectionLabel } from '../utils/weather.js';
-import { renderBreadcrumbs } from '../components/Breadcrumbs.js'; // Importiere die Breadcrumb-Komponente
+import { renderBreadcrumbs } from '../components/Breadcrumbs.js';
+import {i18n} from "../i18n/i18n.js";
 
 export async function renderHistoryView(params) {
   const { id } = params;
@@ -17,24 +17,24 @@ export async function renderHistoryView(params) {
     
     const html = `
       ${renderBreadcrumbs([
-        { label: 'Home', url: '/' },
+        { label: i18n.t('HOME'), url: '/' },
         { label: station.getDisplayName(), url: `/station/${id}` },
-        { label: 'History', url: `/station/${id}/history` }
+        { label: i18n.t('HISTORY'), url: `/station/${id}/history` }
       ])}
       <div class="history-view">
-        <h1>Weather History for ${station.getDisplayName()}</h1>
+        <h1>${i18n.t('WEATHER_HISTORY')}</h1>
         
         <div class="history-table">
           <table>
             <thead>
               <tr>
-                <th><i class="fa-solid fa-clock"></i> Time</th>
-                <th><i class="fa-solid fa-temperature-half"></i> Temp (°C)</th>
-                <th><i class="fa-solid fa-droplet"></i> Humidity (%)</th>
-                <th><i class="fa-solid fa-wind"></i> Wind (km/h)</th>
-                <th><i class="fa-solid fa-compass"></i> Wind Dir</th>
-                <th><i class="fa-solid fa-cloud-showers-heavy"></i> Rain (mm)</th>
-                <th><i class="fa-solid fa-gauge-high"></i> Pressure (hPa)</th>
+                <th><i class="fa-solid fa-clock"></i> ${i18n.t('DATE')}</th>
+                <th><i class="fa-solid fa-temperature-half"></i> ${i18n.t('TEMPERATURE')} (°C)</th>
+                <th><i class="fa-solid fa-droplet"></i> ${i18n.t('HUMIDITY')} (%)</th>
+                <th><i class="fa-solid fa-wind"></i> ${i18n.t('WIND')} (km/h)</th>
+                <th><i class="fa-solid fa-compass"></i> ${i18n.t('WIND_DIR')}</th>
+                <th><i class="fa-solid fa-cloud-showers-heavy"></i> ${i18n.t('RAIN')} (mm)</th>
+                <th><i class="fa-solid fa-gauge-high"></i> ${i18n.t('PRESSURE')} (hPa)</th>
               </tr>
             </thead>
             <tbody>
