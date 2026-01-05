@@ -5,7 +5,6 @@ import {updateDynamicContent} from './utils/config.js';
 import {renderHomeView} from './views/HomeView.js';
 import {renderStationView} from './views/StationView.js';
 import {renderHistoryView} from './views/HistoryView.js';
-import {LanguageSwitcher} from "./components/LanguageSwitcher.js";
 import {OffCanvasManager} from "./components/OffCanvasManager.js";
 import {UnitSwitcher} from "./components/UnitSwitcher.js";
 import {unitManager} from "./utils/UnitManager.js";
@@ -22,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDynamicContent();
 
     new OffCanvasManager();
-    new LanguageSwitcher('language-switcher');
     new UnitSwitcher('unit-switcher');
 });
 

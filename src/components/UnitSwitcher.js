@@ -1,8 +1,10 @@
+
 import { i18n } from '../i18n/i18n.js';
 import { unitManager } from '../utils/UnitManager.js';
 import { timeManager } from '../utils/TimeManager.js';
 import { UnitConfig, UnitPresets } from '../utils/UnitConfig.js';
 import { TIMEZONES } from '../utils/timezones.js';
+import { translations } from '../i18n/translations.js';
 
 export class UnitSwitcher {
   constructor(containerId = 'unit-switcher') {
@@ -22,6 +24,61 @@ export class UnitSwitcher {
     i18n.subscribe(() => this.render());
     unitManager.subscribe(() => this.render());
     timeManager.subscribe(() => this.render());
+  }
+
+  renderRegionalSettings() {
+    const currentLang = i18n.getLanguage();
+    const languages = i18n.getAvailableLanguages();
+    const currentTimezone = timeManager.getTimezone();
+    const currentDateFormat = timeManager.getDateFormat();
+
+    const dateFormats = [
+      { value: 'DD/MM/YYYY', label: 'DD/MM/YYYY' },
+      { value: 'MM/DD/YYYY', label: 'MM/DD/YYYY' },
+      { value: 'YYYY-MM-DD', label: 'YYYY-MM-DD' },
+      { value: 'DD.MM.YYYY', label: 'DD.MM.YYYY' },
+      { value: 'DD-MM-YYYY', label: 'DD-MM-YYYY' },
+    ];
+
+    return `
+      <div class="settings-section">
+        <h3>${i18n.t('REGIONAL_SETTINGS')}</h3>
+        
+        <div class="unit-switcher">
+          <!-- Language -->
+          <div class="unit-type">
+            <label for="lang-select">${i18n.t('LANGUAGE')}</label>
+            <select id="lang-select" class="lang-select">
+              ${languages.map(lang => `
+                <option value="${lang}" ${lang === currentLang ? 'selected' : ''}>
+                  ${translations[lang].FLAG} ${i18n.t('LANG_' + lang.toUpperCase())}
+                </option>
+              `).join('')}
+            </select>
+          </div>
+
+          <!-- Timezone -->
+          <div class="unit-type">
+            <label for="timezone-select">${i18n.t('TIMEZONE')}</label>
+            <select id="timezone-select">
+              ${TIMEZONES.map(tz => `
+                <option value="${tz}" ${currentTimezone === tz ? 'selected' : ''}>${tz}</option>
+              `).join('')}
+            </select>
+          </div>
+
+          <!-- Date Format -->
+          <div class="unit-type">
+            <label for="date-format-select">${i18n.t('DATE_FORMAT')}</label>
+            <select id="date-format-select">
+              ${dateFormats.map(format => `
+                <option value="${format.value}" ${currentDateFormat === format.value ? 'selected' : ''}>${format.label}</option>
+              `).join('')}
+            </select>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   renderPresets() {
@@ -62,49 +119,8 @@ export class UnitSwitcher {
     `;
   }
 
-  renderTimeSettings() {
-    const currentTimezone = timeManager.getTimezone();
-    const currentDateFormat = timeManager.getDateFormat();
-
-    const dateFormats = [
-      { value: 'DD/MM/YYYY', label: 'DD/MM/YYYY' },
-      { value: 'MM/DD/YYYY', label: 'MM/DD/YYYY' },
-      { value: 'YYYY-MM-DD', label: 'YYYY-MM-DD' },
-      { value: 'DD.MM.YYYY', label: 'DD.MM.YYYY' },
-      { value: 'DD-MM-YYYY', label: 'DD-MM-YYYY' },
-    ];
-
+  renderUnitSettings() {
     return `
-      <div class="settings-section">
-        <h3>${i18n.t('TIME_SETTINGS')}</h3>
-        
-        <div class="unit-switcher">
-          <!-- Timezone -->
-          <div class="unit-type">
-            <label for="timezone-select">${i18n.t('TIMEZONE')}</label>
-            <select id="timezone-select">
-              ${TIMEZONES.map(tz => `
-                <option value="${tz}" ${currentTimezone === tz ? 'selected' : ''}>${tz}</option>
-              `).join('')}
-            </select>
-          </div>
-
-          <!-- Date Format -->
-          <div class="unit-type">
-            <label for="date-format-select">${i18n.t('DATE_FORMAT')}</label>
-            <select id="date-format-select">
-              ${dateFormats.map(format => `
-                <option value="${format.value}" ${currentDateFormat === format.value ? 'selected' : ''}>${format.label}</option>
-              `).join('')}
-            </select>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  render() {
-    this.container.innerHTML = `
       <div class="settings-section">
         <h3>${i18n.t('UNITS')}</h3>
         
@@ -118,9 +134,19 @@ export class UnitSwitcher {
           ${this.renderUnitType('rain', i18n.t('RAIN'))}
         </div>
       </div>
-      
-      ${this.renderTimeSettings()}
     `;
+  }
+
+  render() {
+    this.container.innerHTML = `
+      ${this.renderRegionalSettings()}
+      ${this.renderUnitSettings()}
+    `;
+
+    // Language select
+    document.getElementById('lang-select')?.addEventListener('change', (e) => {
+      i18n.setLanguage(e.target.value);
+    });
 
     // Preset buttons
     document.querySelectorAll('.preset-btn').forEach(btn => {

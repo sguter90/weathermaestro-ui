@@ -8,7 +8,7 @@ export const de = {
     UNIT_PRESET_METRIC: 'Metrisch',
     UNIT_PRESET_IMPERIAL: 'Imperial',
     UNIT_PRESET_AVIATION: 'Luftfahrt',
-    TIME_SETTINGS: 'Datum und Uhrzeit',
+    REGIONAL_SETTINGS: 'Sprache & Region',
     TIMEZONE: 'Zeitzone',
     TIME_FORMAT: 'Zeitformat',
     TIME_FORMAT_12_HOUR: '12-Stunden',
