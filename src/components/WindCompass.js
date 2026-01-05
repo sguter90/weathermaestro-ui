@@ -1,5 +1,6 @@
 import { Gauge } from "./Gauge.js";
 import {i18n} from "../i18n/i18n.js";
+import {getWindDirectionLabel} from "../utils/weather.js";
 
 /**
  * Wind direction compass with speed indicator
@@ -12,21 +13,6 @@ export class WindCompass extends Gauge {
         this.unit = options.unit || 'km/h';
         this.color = options.color || '#4CAF50';
         this.needleOffset = 0; // Offset for SVG coordinate system
-    }
-
-    getDirectionLabel() {
-        const directions = [
-            i18n.t('COMPASS_DIR_N'),
-            i18n.t('COMPASS_DIR_NE'),
-            i18n.t('COMPASS_DIR_E'),
-            i18n.t('COMPASS_DIR_SE'),
-            i18n.t('COMPASS_DIR_S'),
-            i18n.t('COMPASS_DIR_SW'),
-            i18n.t('COMPASS_DIR_W'),
-            i18n.t('COMPASS_DIR_NW')
-        ];
-        const index = Math.round(this.direction / 45) % 8;
-        return directions[index];
     }
 
     getSpeedColor() {
@@ -237,7 +223,7 @@ export class WindCompass extends Gauge {
                       font-family="Arial" 
                       font-size="14" 
                       font-weight="bold"
-                      fill="${this.getSpeedColor()}">${this.getDirectionLabel()}</text>
+                      fill="${this.getSpeedColor()}">${getWindDirectionLabel(this.direction)}</text>
                 <text x="${centerX}" y="${centerY + 12}" 
                       text-anchor="middle" 
                       font-family="Arial" 

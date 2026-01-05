@@ -74,7 +74,7 @@ export async function renderStationView(params) {
       ])}
       <div class="station-view">
         <h1>${i18n.t('CURRENT_WEATHER')}</h1>
-        <p class="timestamp">${weatherData.getFormattedDate()}</p>
+        <p class="timestamp">${weatherData.dateUTC.toLocaleString()}</p>
         
         <section class="current-conditions">
           <h2>${i18n.t('CURRENT_MEASUREMENTS')}</h2>

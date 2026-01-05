@@ -95,14 +95,6 @@ export class WeatherData {
   }
 
   /**
-   * Get formatted date string
-   */
-  getFormattedDate(locale = 'en-US', options = {}) {
-    if (!this.dateUTC) return 'N/A';
-    return this.dateUTC.toLocaleString(locale, options);
-  }
-
-  /**
    * Get temperature (respects user preference)
    * @param {boolean} useMetric - true for Celsius, false for Fahrenheit
    * @param {boolean} indoor - true for indoor, false for outdoor
