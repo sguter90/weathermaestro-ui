@@ -169,6 +169,35 @@ export class WeatherData {
     return Weather.getWindDirectionLabel(this.windDir)
   }
 
+
+  /**
+   * Calculates the dew point based on temperature and humidity
+   * Uses the Magnus formula
+   * @returns {number} Dew point in the current temperature unit
+   */
+  getDewPoint() {
+    const humidity = this.humidityOut;
+
+    // Magnus constants
+    const a = 17.27;
+    const b = 237.7; // in Celsius
+
+    // Calculate dew point in Celsius using the Magnus formula
+    const alpha = ((a * this.tempOutC) / (b + this.tempOutC)) + Math.log(humidity / 100);
+    const dewPointC = (b * alpha) / (a - alpha);
+
+    // Convert to current unit using uiConfigManager
+    return uiConfigManager.convert(dewPointC, 'temperature');
+  }
+
+  /**
+   * Returns the dew point formatted with unit
+   * @returns {string}
+   */
+  getDewPointFormatted() {
+    return `${this.getDewPoint().toFixed(1)}${this.getTempUnit()}`;
+  }
+
   /**
    * Convert to plain object
    */

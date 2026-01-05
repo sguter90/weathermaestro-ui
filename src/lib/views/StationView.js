@@ -4,6 +4,7 @@ import {CircularGauge} from "../components/CircularGauge.js";
 import {WindCompass} from "../components/WindCompass.js";
 import {RainGauge} from "../components/RainGauge.js";
 import {UVIndexGauge} from "../components/UVIndexGauge.js";
+import {DewPointGauge} from "../components/DewPointGauge.js";
 import {renderBreadcrumbs} from "../components/Breadcrumbs.js";
 import {i18n} from "../i18n/i18n.js";
 import {dateFormatter} from "../DateFormatter.js";
@@ -34,6 +35,14 @@ export async function renderStationView(params) {
             label: i18n.t('HUMIDITY'),
             color: '#2196F3',
             id: 'humidity-gauge'
+        });
+
+        const dewPointGauge = new DewPointGauge({
+            value: weatherData.getDewPoint(),
+            min: -40,
+            max: 40,
+            unit: weatherData.getTempUnit(),
+            id: 'dewpoint-gauge'
         });
 
         const pressureGauge = new CircularGauge({
@@ -87,6 +96,11 @@ export async function renderStationView(params) {
             <div class="gauge-container">
               <h3>${i18n.t('HUMIDITY')}</h3>
               ${humidityGauge.render()}
+            </div>
+            
+            <div class="gauge-container">
+              <h3>${i18n.t('DEW_POINT')}</h3>
+              ${dewPointGauge.render()}
             </div>
             
             <div class="gauge-container">

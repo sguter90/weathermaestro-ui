@@ -37,4 +37,13 @@ export class Weather {
         if (uvValue <= 10) return i18n.t('UV_CAT_VERY_HIGH');
         return i18n.t('UV_CAT_EXTREME');
     }
+
+    static getDewPointLabel(value) {
+        if (value < -10) return i18n.t('DEW_VERY_DRY');
+        if (value < 0) return i18n.t('DEW_DRY');
+        if (value < 10) return i18n.t('DEW_COMFORTABLE');
+        if (value < 15) return i18n.t('DEW_HUMID');
+        if (value < 20) return i18n.t('DEW_VERY_HUMID');
+        return i18n.t('DEW_EXTREMELY_HUMID');
+    }
 }

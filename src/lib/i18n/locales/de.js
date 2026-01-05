@@ -42,6 +42,7 @@ export const de = {
     UV_INDEX: 'UV-Index',
     HEIGHT: 'Höhe',
     SOLAR_RADIATION: 'Sonneneinstrahlung',
+    DEW_POINT: 'Taupunkt',
     INDOOR_TEMP: 'Temperatur (Innen)',
     INDOOR_HUMIDITY: 'Luftfeuchtigkeit (Innen)',
     UV_CAT_LOW: 'Niedrig',
@@ -57,4 +58,10 @@ export const de = {
     COMPASS_DIR_SW: 'SW',
     COMPASS_DIR_W: 'W',
     COMPASS_DIR_NW: 'NW',
+    DEW_VERY_DRY: 'Sehr trocken',
+    DEW_DRY: 'Trocken',
+    DEW_COMFORTABLE: 'Komfortabel',
+    DEW_HUMID: 'Feucht',
+    DEW_VERY_HUMID: 'Sehr feucht',
+    DEW_EXTREMELY_HUMID: 'Extrem feucht',
 };
