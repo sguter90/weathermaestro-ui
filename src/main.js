@@ -5,12 +5,16 @@ import {updateDynamicContent} from './utils/config.js';
 import {renderHomeView} from './views/HomeView.js';
 import {renderStationView} from './views/StationView.js';
 import {renderHistoryView} from './views/HistoryView.js';
+import {LanguageSwitcher} from "./components/LanguageSwitcher.js";
+import {i18n} from "./i18n/i18n.js";
 
 // Make API available globally for debugging
 window.api = api;
 window.router = router;
 
 document.addEventListener('DOMContentLoaded', updateDynamicContent);
+
+new LanguageSwitcher('language-switcher');
 
 // Define routes
 window.router
@@ -25,6 +29,10 @@ window.router
       </div>
     `;
     });
+
+i18n.subscribe(() => {
+    router.handleRoute();
+});
 
 // Initialize app
 console.log('WeatherMaestro UI initialized');
