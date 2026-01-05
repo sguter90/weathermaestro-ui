@@ -1,6 +1,6 @@
 import { Gauge } from "./Gauge.js";
 import {i18n} from "../i18n/i18n.js";
-import {getWindDirectionLabel} from "../utils/weather.js";
+import {Weather} from "../Weather.js";
 
 /**
  * Wind direction compass with speed indicator
@@ -223,7 +223,7 @@ export class WindCompass extends Gauge {
                       font-family="Arial" 
                       font-size="14" 
                       font-weight="bold"
-                      fill="${this.getSpeedColor()}">${getWindDirectionLabel(this.direction)}</text>
+                      fill="${this.getSpeedColor()}">${Weather.getWindDirectionLabel(this.direction)}</text>
                 <text x="${centerX}" y="${centerY + 12}" 
                       text-anchor="middle" 
                       font-family="Arial" 

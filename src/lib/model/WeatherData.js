@@ -1,5 +1,5 @@
-import {i18n} from "../../i18n/i18n.js";
-import {uiConfigManager} from "../../utils/UiConfigManager.js";
+import {uiConfigManager} from "../UiConfigManager.js";
+import {Weather} from "../Weather.js";
 
 /**
  * WeatherData DTO - Represents weather data from a weather station
@@ -159,11 +159,14 @@ export class WeatherData {
    * Get UV index category
    */
   getUVCategory() {
-    if (this.uv <= 2) return i18n.t('UV_CAT_LOW');
-    if (this.uv <= 5) return i18n.t('UV_CAT_MODERATE');
-    if (this.uv <= 7) return i18n.t('UV_CAT_HIGH');
-    if (this.uv <= 10) return i18n.t('UV_CAT_VERY_HIGH');
-    return i18n.t('UV_CAT_EXTREME');
+    return Weather.getUVCategoryLabel(this.uv);
+  }
+
+  /**
+   * Get wind direction
+   */
+  getWindDirection() {
+    return Weather.getWindDirectionLabel(this.windDir)
   }
 
   /**
@@ -173,3 +176,4 @@ export class WeatherData {
     return { ...this };
   }
 }
+

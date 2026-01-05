@@ -1,28 +1,22 @@
 import './styles/main.css';
-import * as api from './api/client';
-import {router} from './Router.js';
-import {updateDynamicContent} from './utils/config.js';
-import {renderHomeView} from './views/HomeView.js';
-import {renderStationView} from './views/StationView.js';
-import {renderHistoryView} from './views/HistoryView.js';
-import {OffCanvasManager} from "./components/OffCanvasManager.js";
-import {UiConfig} from "./components/UiConfig.js";
-import {uiConfigManager} from "./utils/UiConfigManager.js";
-
-// Make API available globally for debugging
-window.api = api;
-window.router = router;
-window.uiConfigManager = uiConfigManager;
+import { appConfig } from './lib/AppConfig.js';
+import {router} from './lib/Router.js';
+import {renderHomeView} from './lib/views/HomeView.js';
+import {renderStationView} from './lib/views/StationView.js';
+import {renderHistoryView} from './lib/views/HistoryView.js';
+import {OffCanvasManager} from "./lib/components/OffCanvasManager.js";
+import {UiConfig} from "./lib/components/UiConfig.js";
+import {uiConfigManager} from "./lib/UiConfigManager.js";
 
 document.addEventListener('DOMContentLoaded', () => {
-    updateDynamicContent();
+    appConfig.init();
 
     new OffCanvasManager();
     new UiConfig('ui-config');
 });
 
 // Define routes
-window.router
+router
     .on('/', renderHomeView)
     .on('/station/:id', renderStationView)
     .on('/station/:id/history', renderHistoryView)
@@ -30,12 +24,12 @@ window.router
         document.getElementById('app').innerHTML = `
       <div class="not-found">
         <h1>404 - Page Not Found</h1>
-        <button onclick="window.router.navigate('/')">Go Home</button>
+        <a href="/">Go Home</a>
       </div>
     `;
     });
 
-window.uiConfigManager.subscribe(() => {
+uiConfigManager.subscribe(() => {
     router.handleRoute();
 })
 

@@ -23,21 +23,6 @@ export class StationData {
   }
 
   /**
-   * Get interval in minutes
-   */
-  getIntervalMinutes() {
-    return Math.floor(this.interval / 60);
-  }
-
-  /**
-   * Get interval display string
-   */
-  getIntervalDisplay() {
-    const minutes = this.getIntervalMinutes();
-    return minutes > 0 ? `${minutes} min` : `${this.interval} sec`;
-  }
-
-  /**
    * Check if station is active (has valid configuration)
    */
   isActive() {

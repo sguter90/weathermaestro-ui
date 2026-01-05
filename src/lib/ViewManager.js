@@ -43,7 +43,6 @@ export class ViewManager {
       <div class="error">
         <h2>Error</h2>
         <p>${message}</p>
-        <button onclick="history.back()">Go Back</button>
       </div>
     `);
   }

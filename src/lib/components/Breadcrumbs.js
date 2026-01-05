@@ -1,5 +1,3 @@
-import { router } from '../Router.js';
-
 /**
  * Generates the HTML string for a breadcrumb navigation.
  * @param {Array<Object>} items - An array of breadcrumb items.

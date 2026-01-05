@@ -1,8 +1,7 @@
 import { i18n } from '../i18n/i18n.js';
-import { uiConfigManager } from '../utils/UiConfigManager.js';
-import { UnitConfig, UnitPresets } from '../utils/UnitConfig.js';
-import { TIMEZONES } from '../utils/timezones.js';
-
+import { uiConfigManager } from '../UiConfigManager.js';
+import { UnitConfig, UnitPresets } from '../UnitConfig.js';
+import { TIMEZONES } from '../DateFormatter.js';
 import {translations} from "../i18n/translations.js";
 
 export class UiConfig {

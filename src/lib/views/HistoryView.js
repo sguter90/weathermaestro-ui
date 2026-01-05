@@ -1,29 +1,26 @@
-
-import { router } from '../Router.js';
-import * as api from '../api/client.js';
-import { viewManager } from '../ViewManager.js';
-import { getWindDirectionLabel } from '../utils/weather.js';
-import { renderBreadcrumbs } from '../components/Breadcrumbs.js';
-import { i18n } from "../i18n/i18n.js";
-import { formatDateTime } from "../utils/timezones.js";
-import { uiConfigManager } from '../utils/UiConfigManager.js';
+import {viewManager} from '../ViewManager.js';
+import {renderBreadcrumbs} from '../components/Breadcrumbs.js';
+import {i18n} from "../i18n/i18n.js";
+import {dateFormatter} from "../DateFormatter.js";
+import {uiConfigManager} from '../UiConfigManager.js';
+import {apiClient} from "../ApiClient.js";
 
 export async function renderHistoryView(params) {
-  const { id } = params;
-  viewManager.showLoading('Loading history...');
+    const {id} = params;
+    viewManager.showLoading('Loading history...');
 
-  try {
-    const station = await api.getStation(id);
-    const history = await api.getWeatherHistory(id, {
-      limit: 24
-    });
-    
-    const html = `
+    try {
+        const station = await apiClient.getStation(id);
+        const history = await apiClient.getWeatherHistory(id, {
+            limit: 24
+        });
+
+        const html = `
       ${renderBreadcrumbs([
-        { label: i18n.t('HOME'), url: '/' },
-        { label: station.getDisplayName(), url: `/station/${id}` },
-        { label: i18n.t('HISTORY'), url: `/station/${id}/history` }
-      ])}
+            {label: i18n.t('HOME'), url: '/'},
+            {label: station.getDisplayName(), url: `/station/${id}`},
+            {label: i18n.t('HISTORY'), url: `/station/${id}/history`}
+        ])}
       <div class="history-view">
         <h1>${i18n.t('WEATHER_HISTORY')}</h1>
         
@@ -43,11 +40,11 @@ export async function renderHistoryView(params) {
             <tbody>
               ${history.map(data => `
                 <tr>
-                  <td>${formatDateTime(data.dateUTC)}</td>
+                  <td>${dateFormatter.formatDateTime(data.dateUTC)}</td>
                   <td>${data.tempOutC !== undefined ? uiConfigManager.convert(data.tempOutC, 'temperature').toFixed(1) : 'N/A'}</td>
                   <td>${data.humidityOut !== undefined ? data.humidityOut + '%' : 'N/A'}</td>
                   <td>${data.windSpeedKmH !== undefined ? uiConfigManager.convert(data.windSpeedKmH, 'windSpeed').toFixed(1) : 'N/A'}</td>
-                  <td>${data.windDir !== undefined ? getWindDirectionLabel(data.windDir) : 'N/A'}</td>
+                  <td>${data.windDir !== undefined ? data.getWindDirection() : 'N/A'}</td>
                   <td>${data.hourlyRainMm !== undefined ? uiConfigManager.convert(data.hourlyRainMm, 'rain').toFixed(1) : 'N/A'}</td>
                   <td>${data.baromAbsHPa !== undefined ? uiConfigManager.convert(data.baromAbsHPa, 'pressure').toFixed(1) : 'N/A'}</td>
                 </tr>
@@ -57,9 +54,9 @@ export async function renderHistoryView(params) {
         </div>
       </div>
     `;
-    
-    viewManager.render(html);
-  } catch (error) {
-    viewManager.showError(error.message);
-  }
+
+        viewManager.render(html);
+    } catch (error) {
+        viewManager.showError(error.message);
+    }
 }

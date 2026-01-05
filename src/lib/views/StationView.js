@@ -1,81 +1,80 @@
-import { viewManager } from '../ViewManager.js';
-import { router } from '../Router.js';
-import * as api from '../api/client.js';
-import { TemperatureGauge } from "../components/TemperatureGauge.js";
-import { CircularGauge } from "../components/CircularGauge.js";
-import { WindCompass } from "../components/WindCompass.js";
-import { RainGauge } from "../components/RainGauge.js";
-import { UVIndexGauge } from "../components/UVIndexGauge.js";
+import {viewManager} from '../ViewManager.js';
+import {TemperatureGauge} from "../components/TemperatureGauge.js";
+import {CircularGauge} from "../components/CircularGauge.js";
+import {WindCompass} from "../components/WindCompass.js";
+import {RainGauge} from "../components/RainGauge.js";
+import {UVIndexGauge} from "../components/UVIndexGauge.js";
 import {renderBreadcrumbs} from "../components/Breadcrumbs.js";
 import {i18n} from "../i18n/i18n.js";
-import {formatDateTime} from "../utils/timezones.js";
+import {dateFormatter} from "../DateFormatter.js";
+import {apiClient} from "../ApiClient.js";
 
 export async function renderStationView(params) {
-  const { id } = params;
-  
-  viewManager.showLoading(i18n.t('LOADING_WEATHER_DATA'));
+    const {id} = params;
 
-  try {
-    const station = await api.getStation(id);
-    const weatherData = await api.getStationWeather(id);
+    viewManager.showLoading(i18n.t('LOADING_WEATHER_DATA'));
 
-    const tempGauge = new TemperatureGauge({
-      value: weatherData.getOutdoorTemp(),
-      min: -40,
-      max: 60,
-      unit: weatherData.getTempUnit(),
-      id: 'temp-gauge'
-    });
-    
-    const humidityGauge = new CircularGauge({
-      value: weatherData.humidityOut,
-      min: 0,
-      max: 100,
-      unit: '%',
-      label: i18n.t('HUMIDITY'),
-      color: '#2196F3',
-      id: 'humidity-gauge'
-    });
-    
-    const pressureGauge = new CircularGauge({
-      value: weatherData.baromRelHPa,
-      min: 950,
-      max: 1050,
-      unit: 'hPa',
-      label: i18n.t('PRESSURE'),
-      color: '#9C27B0',
-      id: 'pressure-gauge'
-    });
-    
-    const rainGauge = new RainGauge({
-      value: weatherData.getDailyRain(),
-      min: 0,
-      max: weatherData.getRainMax(),
-      unit: weatherData.getRainUnit(),
-      label: i18n.t('DAILY_RAIN'),
-      id: 'rain-gauge'
-    });
-    
-    const windCompass = new WindCompass({
-      direction: weatherData.windDir,
-      speed: weatherData.getWindSpeed(),
-      unit: weatherData.getWindUnit(),
-      id: 'wind-compass'
-    });
+    try {
+        const station = await apiClient.getStation(id);
+        const weatherData = await apiClient.getStationWeather(id);
 
-    const uvGauge = new UVIndexGauge({
-      value: weatherData.uv ,
-      id: 'uv-gauge',
-    });
-    
-    const html = `
+        const tempGauge = new TemperatureGauge({
+            value: weatherData.getOutdoorTemp(),
+            min: -40,
+            max: 60,
+            unit: weatherData.getTempUnit(),
+            id: 'temp-gauge'
+        });
+
+        const humidityGauge = new CircularGauge({
+            value: weatherData.humidityOut,
+            min: 0,
+            max: 100,
+            unit: '%',
+            label: i18n.t('HUMIDITY'),
+            color: '#2196F3',
+            id: 'humidity-gauge'
+        });
+
+        const pressureGauge = new CircularGauge({
+            value: weatherData.getPressure(),
+            min: 950,
+            max: 1050,
+            unit: weatherData.getPressureUnit(),
+            label: i18n.t('PRESSURE'),
+            color: '#9C27B0',
+            id: 'pressure-gauge'
+        });
+
+        const rainGauge = new RainGauge({
+            value: weatherData.getDailyRain(),
+            min: 0,
+            max: weatherData.getRainMax(),
+            unit: weatherData.getRainUnit(),
+            label: i18n.t('DAILY_RAIN'),
+            id: 'rain-gauge'
+        });
+
+        const windCompass = new WindCompass({
+            direction: weatherData.windDir,
+            speed: weatherData.getWindSpeed(),
+            unit: weatherData.getWindUnit(),
+            id: 'wind-compass'
+        });
+
+        const uvGauge = new UVIndexGauge({
+            value: weatherData.uv,
+            id: 'uv-gauge',
+        });
+
+        const html = `
       ${renderBreadcrumbs([
-        { label: i18n.t('HOME'), url: '/' },
-        { label: station.getDisplayName(), url: `/station/${id}` },
-      ])}
+            {label: i18n.t('HOME'), url: '/'},
+            {label: station.getDisplayName(), url: `/station/${id}`},
+        ])}
       <div class="station-view">
         <h1>${i18n.t('CURRENT_WEATHER')}</h1>
-        <p class="timestamp">${formatDateTime(weatherData.dateUTC)}</p>
+        <p class="timestamp">${dateFormatter.formatDateTime(weatherData.dateUTC)}</p>
         
         <section class="current-conditions">
           <h2>${i18n.t('CURRENT_MEASUREMENTS')}</h2>
@@ -138,14 +137,14 @@ export async function renderStationView(params) {
           </div>
         </section>
         
-        <button class="history-button" onclick="router.navigate('/station/${id}/history')">
+        <a class="history-button" href="#/station/${id}/history">
           ${i18n.t('SHOW_HISTORY')} →
-        </button>
+        </a>
       </div>
     `;
-    
-    viewManager.render(html);
-  } catch (error) {
-    viewManager.showError(error.message);
-  }
+
+        viewManager.render(html);
+    } catch (error) {
+        viewManager.showError(error.message);
+    }
 }

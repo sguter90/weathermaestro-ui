@@ -1,6 +1,5 @@
 import { UnitConfig, UnitPresets } from './UnitConfig.js';
-
-import {translations} from "../i18n/translations.js";
+import {translations} from "./i18n/translations.js";
 
 class UiConfigManager {
   constructor() {

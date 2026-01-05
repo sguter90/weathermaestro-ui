@@ -1,4 +1,3 @@
-
 export const UnitConfig = {
   temperature: {
     C: { label: '°C', convert: (val) => val },
