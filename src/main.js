@@ -6,15 +6,19 @@ import {renderHomeView} from './views/HomeView.js';
 import {renderStationView} from './views/StationView.js';
 import {renderHistoryView} from './views/HistoryView.js';
 import {LanguageSwitcher} from "./components/LanguageSwitcher.js";
+import {OffCanvasManager} from "./components/OffCanvasManager.js";
 import {i18n} from "./i18n/i18n.js";
 
 // Make API available globally for debugging
 window.api = api;
 window.router = router;
 
-document.addEventListener('DOMContentLoaded', updateDynamicContent);
+document.addEventListener('DOMContentLoaded', () => {
+    updateDynamicContent();
 
-new LanguageSwitcher('language-switcher');
+    new OffCanvasManager();
+    new LanguageSwitcher('language-switcher');
+});
 
 // Define routes
 window.router
