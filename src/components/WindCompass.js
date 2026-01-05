@@ -1,4 +1,5 @@
 import { Gauge } from "./Gauge.js";
+import {i18n} from "../i18n/i18n.js";
 
 /**
  * Wind direction compass with speed indicator
@@ -14,9 +15,17 @@ export class WindCompass extends Gauge {
     }
 
     getDirectionLabel() {
-        const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 
-                          'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
-        const index = Math.round(this.direction / 22.5) % 16;
+        const directions = [
+            i18n.t('COMPASS_DIR_N'),
+            i18n.t('COMPASS_DIR_NE'),
+            i18n.t('COMPASS_DIR_E'),
+            i18n.t('COMPASS_DIR_SE'),
+            i18n.t('COMPASS_DIR_S'),
+            i18n.t('COMPASS_DIR_SW'),
+            i18n.t('COMPASS_DIR_W'),
+            i18n.t('COMPASS_DIR_NW')
+        ];
+        const index = Math.round(this.direction / 45) % 8;
         return directions[index];
     }
 
@@ -116,17 +125,17 @@ export class WindCompass extends Gauge {
         const centerY = this.height / 2;
 
         const mainDirections = [
-            { label: 'N', angle: 0 },
-            { label: 'E', angle: 90 },
-            { label: 'S', angle: 180 },
-            { label: 'W', angle: 270 }
+            { label: i18n.t('COMPASS_DIR_N'), angle: 0 },
+            { label: i18n.t('COMPASS_DIR_E'), angle: 90 },
+            { label: i18n.t('COMPASS_DIR_S'), angle: 180 },
+            { label: i18n.t('COMPASS_DIR_W'), angle: 270 }
         ];
 
         const subDirections = [
-            { label: 'NE', angle: 45 },
-            { label: 'SE', angle: 135 },
-            { label: 'SW', angle: 225 },
-            { label: 'NW', angle: 315 }
+            { label: i18n.t('COMPASS_DIR_NE'), angle: 45 },
+            { label: i18n.t('COMPASS_DIR_SE'), angle: 135 },
+            { label: i18n.t('COMPASS_DIR_SW'), angle: 225 },
+            { label: i18n.t('COMPASS_DIR_NW'), angle: 315 }
         ];
 
         const labels = [];

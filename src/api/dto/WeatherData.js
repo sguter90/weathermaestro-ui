@@ -1,3 +1,5 @@
+import {i18n} from "../../i18n/i18n.js";
+
 /**
  * WeatherData DTO - Represents weather data from a weather station
  * Provides both metric and imperial measurements
@@ -75,23 +77,14 @@ export class WeatherData {
   }
 
   /**
-   * Get wind direction as compass direction (N, NE, E, SE, S, SW, W, NW)
-   */
-  getWindDirection() {
-    const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-    const index = Math.round(this.windDir / 45) % 8;
-    return directions[index];
-  }
-
-  /**
    * Get UV index category
    */
   getUVCategory() {
-    if (this.uv <= 2) return 'Low';
-    if (this.uv <= 5) return 'Moderate';
-    if (this.uv <= 7) return 'High';
-    if (this.uv <= 10) return 'Very High';
-    return 'Extreme';
+    if (this.uv <= 2) return i18n.t('UV_CAT_LOW');
+    if (this.uv <= 5) return i18n.t('UV_CAT_MODERATE');
+    if (this.uv <= 7) return i18n.t('UV_CAT_HIGH');
+    if (this.uv <= 10) return i18n.t('UV_CAT_VERY_HIGH');
+    return i18n.t('UV_CAT_EXTREME');
   }
 
   /**
