@@ -2,7 +2,7 @@ import {WeatherData} from './dto/WeatherData.js';
 import {StationData} from './dto/StationData.js';
 import {getConfig} from "../utils/config.js";
 
-const API_BASE_URL = getConfig('API_BASE_URL')
+const API_BASE_URL = getConfig('API_BASE_URL') + '/api/v1'
 
 if (!API_BASE_URL) {
     console.error("API_BASE_URL is not configured. Please set VITE_API_BASE_URL in .env or API_BASE_URL environment variable for Docker.");
