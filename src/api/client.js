@@ -1,15 +1,24 @@
 import {WeatherData} from './dto/WeatherData.js';
 import {StationData} from './dto/StationData.js';
+import {getConfig} from "../utils/config.js";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8059/api/v1';
+const API_BASE_URL = getConfig('API_BASE_URL')
+
+if (!API_BASE_URL) {
+    console.error("API_BASE_URL is not configured. Please set VITE_API_BASE_URL in .env or API_BASE_URL environment variable for Docker.");
+}
+
+async function callApi(endpoint, options = {}) {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({message: 'Unknown error'}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+}
 
 export async function getStations() {
-    const response = await fetch(`${API_BASE}/stations`);
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to fetch stations: ${response.status} ${response.statusText} - ${errorText}`);
-    }
-    const stationsRawData = await response.json();
+    const stationsRawData = await callApi('/stations');
 
     return await Promise.all(
         stationsRawData.map(async (stationRaw) => {
@@ -26,34 +35,17 @@ export async function getStations() {
 }
 
 export async function getStation(stationId) {
-    const response = await fetch(`${API_BASE}/stations/${stationId}`);
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to fetch stations: ${response.status} ${response.statusText} - ${errorText}`);
-    }
-    const data = await response.json();
+    const data = await callApi(`/stations/${stationId}`);
     return new StationData(data);
 }
 
 export async function getStationWeather(stationId) {
-    const response = await fetch(`${API_BASE}/stations/${stationId}/weather/current`);
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to fetch weather data for station ${stationId}: ${response.status} ${response.statusText} - ${errorText}`);
-    }
-    const data = await response.json();
+    const data = await callApi(`/stations/${stationId}/weather/current`);
     return new WeatherData(data);
 }
 
 export async function getWeatherHistory(stationId, params = {}) {
     const queryParams = new URLSearchParams(params);
-    const response = await fetch(
-        `${API_BASE}/stations/${stationId}/weather/history?${queryParams}`
-    );
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to fetch history for station ${stationId}: ${response.status} ${response.statusText} - ${errorText}`);
-    }
-    const data = await response.json();
+    const data = await callApi(`/stations/${stationId}/weather/history?${queryParams}`);
     return data.map(weatherData => new WeatherData(weatherData));
 }

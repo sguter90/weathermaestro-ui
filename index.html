@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>%VITE_APP_NAME%</title>
-    <meta name="description" content="%VITE_APP_NAME% - Version %VITE_APP_VERSION%">
+    <title class="js-config-value" data-config-key="APP_NAME"></title>
+    <meta name="description" class="js-config-value" data-config-key="APP_DESCRIPTION">
   </head>
   <body>
     <header class="app-header">
       <div class="container">
-        <h1>%VITE_APP_NAME%</h1>
+        <h1 class="js-config-value" data-config-key="APP_NAME"></h1>
       </div>
     </header>
     <main class="app-main">
@@ -17,9 +17,10 @@
     </main>
     <footer class="app-footer">
       <div class="container">
-        <p>&copy; 2025 WeatherMaestro. Version %VITE_APP_VERSION%</p>
+        <p>&copy; 2026 <span class="js-config-value" data-config-key="APP_NAME"></span>.</p>
       </div>
     </footer>
+    <script src="/config.js"></script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
