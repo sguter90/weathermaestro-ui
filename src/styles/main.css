@@ -1,5 +1,6 @@
 @import "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css";
 @import "./offcanvas.css";
+@import "./unit-switcher.css";
 
 :root {
   --primary-color: #3498db;
@@ -156,6 +157,33 @@ body {
   border-color: #999;
 }
 
+.lang-select:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 4px rgba(76, 175, 80, 0.3);
+}
+
+/* Select elements styling (for time and date format selects) */
+select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+select:hover {
+  border-color: #999;
+}
+
+select:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 4px rgba(76, 175, 80, 0.3);
+}
+
 /* Home View Styles */
 .home-view {
   padding: 20px;
@@ -216,7 +244,6 @@ body {
   border-radius: 20px;
   font-size: 0.85em;
   font-weight: bold;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
   color: #fff;
   align-self: flex-start; /* Align status to the left within the card */

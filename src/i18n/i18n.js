@@ -8,7 +8,6 @@ class I18nManager {
   }
 
   loadLanguage() {
-    console.log(translations)
     const stored = localStorage.getItem('app-language');
     if (stored && translations[stored]) {
       return stored;

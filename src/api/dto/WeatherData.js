@@ -1,4 +1,5 @@
 import {i18n} from "../../i18n/i18n.js";
+import {unitManager} from "../../utils/UnitManager.js";
 
 /**
  * WeatherData DTO - Represents weather data from a weather station
@@ -77,6 +78,84 @@ export class WeatherData {
   }
 
   /**
+   * Get outdoor temperature with unit conversion
+   */
+  getOutdoorTemp() {
+    return unitManager.convert(this.tempOutC, 'temperature');
+  }
+
+  /**
+   * Get temperature unit symbol
+   */
+  getTempUnit() {
+    return unitManager.getUnitLabel('temperature');
+  }
+
+  /**
+   * Get wind speed with unit conversion
+   */
+  getWindSpeed() {
+    return unitManager.convert(this.windSpeedMS, 'windSpeed');
+  }
+
+  /**
+   * Get wind speed unit
+   */
+  getWindUnit() {
+    return unitManager.getUnitLabel('windSpeed');
+  }
+
+  /**
+   * Get daily rain with unit conversion
+   */
+  getDailyRain() {
+    return unitManager.convert(this.dailyRainMm, 'rain');
+  }
+
+  /**
+   * Get hourly rain with unit conversion
+   */
+  getHourlyRain() {
+    return unitManager.convert(this.hourlyRainMm, 'rain');
+  }
+
+  /**
+   * Get rain unit
+   */
+  getRainUnit() {
+    return unitManager.getUnitLabel('rain');
+  }
+
+  /**
+   * Get rain max value for gauge
+   */
+  getRainMax() {
+    const isMetric = unitManager.getUnit('rain') === 'MM';
+    return isMetric ? 100 : 4;
+  }
+
+  /**
+   * Get indoor temperature with unit conversion
+   */
+  getIndoorTemp() {
+    return unitManager.convert(this.tempInC, 'temperature');
+  }
+
+  /**
+   * Get pressure with unit conversion
+   */
+  getPressure() {
+    return unitManager.convert(this.baromRelHPa, 'pressure');
+  }
+
+  /**
+   * Get pressure unit
+   */
+  getPressureUnit() {
+    return unitManager.getUnitLabel('pressure');
+  }
+
+  /**
    * Get UV index category
    */
   getUVCategory() {
@@ -85,86 +164,6 @@ export class WeatherData {
     if (this.uv <= 7) return i18n.t('UV_CAT_HIGH');
     if (this.uv <= 10) return i18n.t('UV_CAT_VERY_HIGH');
     return i18n.t('UV_CAT_EXTREME');
-  }
-
-  /**
-   * Check if battery is low (assuming 0 = low, 1 = ok)
-   */
-  isBatteryLow() {
-    return this.wh65Batt === 0;
-  }
-
-  /**
-   * Get temperature (respects user preference)
-   * @param {boolean} useMetric - true for Celsius, false for Fahrenheit
-   * @param {boolean} indoor - true for indoor, false for outdoor
-   */
-  getTemperature(useMetric = true, indoor = false) {
-    if (indoor) {
-      return useMetric ? this.tempInC : this.tempInF;
-    }
-    return useMetric ? this.tempOutC : this.tempOutF;
-  }
-
-  /**
-   * Get wind speed (respects user preference)
-   * @param {string} unit - 'ms', 'kmh', or 'mph'
-   */
-  getWindSpeed(unit = 'ms') {
-    switch (unit) {
-      case 'kmh':
-        return this.windSpeedKmH;
-      case 'mph':
-        return this.windSpeedMPH;
-      default:
-        return this.windSpeedMS;
-    }
-  }
-
-  /**
-   * Get rain data (respects user preference)
-   * @param {boolean} useMetric - true for mm, false for inches
-   */
-  getRainData(useMetric = true) {
-    if (useMetric) {
-      return {
-        rate: this.rainRateMmH,
-        event: this.eventRainMm,
-        hourly: this.hourlyRainMm,
-        daily: this.dailyRainMm,
-        weekly: this.weeklyRainMm,
-        monthly: this.monthlyRainMm,
-        yearly: this.yearlyRainMm,
-        total: this.totalRainMm,
-      };
-    }
-    return {
-      rate: this.rainRateIn,
-      event: this.eventRainIn,
-      hourly: this.hourlyRainIn,
-      daily: this.dailyRainIn,
-      weekly: this.weeklyRainIn,
-      monthly: this.monthlyRainIn,
-      yearly: this.yearlyRainIn,
-      total: this.totalRainIn,
-    };
-  }
-
-  /**
-   * Get barometric pressure (respects user preference)
-   * @param {boolean} useMetric - true for hPa, false for inches
-   */
-  getBarometricPressure(useMetric = true) {
-    if (useMetric) {
-      return {
-        relative: this.baromRelHPa,
-        absolute: this.baromAbsHPa,
-      };
-    }
-    return {
-      relative: this.baromRelIn,
-      absolute: this.baromAbsIn,
-    };
   }
 
   /**

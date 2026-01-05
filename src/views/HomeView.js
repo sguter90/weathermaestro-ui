@@ -2,8 +2,9 @@ import * as api from '../api/client.js';
 import { viewManager } from '../ViewManager.js';
 import { router } from '../Router.js';
 import { getWindDirectionLabel } from '../utils/weather.js';
-import {renderBreadcrumbs} from "../components/Breadcrumbs.js";
-import {i18n} from "../i18n/i18n.js";
+import { renderBreadcrumbs } from "../components/Breadcrumbs.js";
+import { i18n } from "../i18n/i18n.js";
+import { unitManager } from '../utils/UnitManager.js';
 
 export async function renderHomeView() {
   viewManager.showLoading('Loading stations...');
@@ -28,7 +29,7 @@ export async function renderHomeView() {
                 <div class="station-details">
                   <div class="station-detail-item">
                     <span class="icon"><i class="fa-solid fa-temperature-half"></i></span>
-                    <span class="value">${station.latestData.tempOutC.toFixed(1)} °C</span>
+                    <span class="value">${unitManager.convert(station.latestData.tempOutC, 'temperature').toFixed(1)} ${unitManager.getUnitLabel('temperature')}</span>
                   </div>
                   <div class="station-detail-item">
                     <span class="icon"><i class="fa-solid fa-droplet"></i></span>
@@ -36,11 +37,11 @@ export async function renderHomeView() {
                   </div>
                   <div class="station-detail-item">
                     <span class="icon"><i class="fa-solid fa-wind"></i></span>
-                    <span class="value">${station.latestData.windSpeedKmH.toFixed(1)} km/h (${getWindDirectionLabel(station.latestData.windDir)})</span>
+                    <span class="value">${unitManager.convert(station.latestData.windSpeedKmH, 'windSpeed').toFixed(1)} ${unitManager.getUnitLabel('windSpeed')} (${getWindDirectionLabel(station.latestData.windDir)})</span>
                   </div>
                   <div class="station-detail-item">
                     <span class="icon"><i class="fa-solid fa-gauge-high"></i></span>
-                    <span class="value">${station.latestData.baromAbsHPa.toFixed(1)} hPa</span>
+                    <span class="value">${unitManager.convert(station.latestData.baromAbsHPa, 'pressure').toFixed(1)} ${unitManager.getUnitLabel('pressure')}</span>
                   </div>
                 </div>
               ` : `<p class="no-data">${i18n.t('NO_WEATHER_DATA')}</p>`}

@@ -43,8 +43,6 @@ export class StationData {
   isActive() {
     const now = new Date();
 
-    console.log(this.lastUpdate, now);
-
     return this.lastUpdate && this.lastUpdate.getTime() + 120_000 > now.getTime();
   }
 

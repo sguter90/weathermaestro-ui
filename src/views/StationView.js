@@ -8,21 +8,22 @@ import { RainGauge } from "../components/RainGauge.js";
 import { UVIndexGauge } from "../components/UVIndexGauge.js";
 import {renderBreadcrumbs} from "../components/Breadcrumbs.js";
 import {i18n} from "../i18n/i18n.js";
+import {formatDateTime} from "../utils/timezones.js";
 
 export async function renderStationView(params) {
   const { id } = params;
+  
   viewManager.showLoading(i18n.t('LOADING_WEATHER_DATA'));
 
   try {
     const station = await api.getStation(id);
     const weatherData = await api.getStationWeather(id);
-    
-    // Create gauges
+
     const tempGauge = new TemperatureGauge({
-      value: weatherData.tempOutC,
+      value: weatherData.getOutdoorTemp(),
       min: -40,
       max: 60,
-      unit: '°C',
+      unit: weatherData.getTempUnit(),
       id: 'temp-gauge'
     });
     
@@ -47,21 +48,21 @@ export async function renderStationView(params) {
     });
     
     const rainGauge = new RainGauge({
-      value: weatherData.dailyRainMm,
+      value: weatherData.getDailyRain(),
       min: 0,
-      max: 100,
-      unit: 'mm',
+      max: weatherData.getRainMax(),
+      unit: weatherData.getRainUnit(),
       label: i18n.t('DAILY_RAIN'),
       id: 'rain-gauge'
     });
     
     const windCompass = new WindCompass({
       direction: weatherData.windDir,
-      speed: weatherData.windSpeedKmH,
-      unit: 'km/h',
+      speed: weatherData.getWindSpeed(),
+      unit: weatherData.getWindUnit(),
       id: 'wind-compass'
     });
-    
+
     const uvGauge = new UVIndexGauge({
       value: weatherData.uv ,
       id: 'uv-gauge',
@@ -74,7 +75,7 @@ export async function renderStationView(params) {
       ])}
       <div class="station-view">
         <h1>${i18n.t('CURRENT_WEATHER')}</h1>
-        <p class="timestamp">${weatherData.dateUTC.toLocaleString()}</p>
+        <p class="timestamp">${formatDateTime(weatherData.dateUTC)}</p>
         
         <section class="current-conditions">
           <h2>${i18n.t('CURRENT_MEASUREMENTS')}</h2>
@@ -117,7 +118,7 @@ export async function renderStationView(params) {
           <div class="details-grid">
             <div class="detail-card">
               <span class="detail-label">${i18n.t('HOURLY_RAIN')}</span>
-              <span class="detail-value">${weatherData.hourlyRainMm.toFixed(1)} mm</span>
+              <span class="detail-value">${weatherData.getHourlyRain().toFixed(1)} ${weatherData.getRainUnit()}</span>
             </div>
             
             <div class="detail-card">
@@ -127,7 +128,7 @@ export async function renderStationView(params) {
             
             <div class="detail-card">
               <span class="detail-label">${i18n.t('INDOOR_TEMP')}</span>
-              <span class="detail-value">${weatherData.tempInC.toFixed(1)}°C</span>
+              <span class="detail-value">${weatherData.getIndoorTemp().toFixed(1)}${weatherData.getTempUnit()}</span>
             </div>
             
             <div class="detail-card">

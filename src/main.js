@@ -7,17 +7,23 @@ import {renderStationView} from './views/StationView.js';
 import {renderHistoryView} from './views/HistoryView.js';
 import {LanguageSwitcher} from "./components/LanguageSwitcher.js";
 import {OffCanvasManager} from "./components/OffCanvasManager.js";
+import {UnitSwitcher} from "./components/UnitSwitcher.js";
+import {unitManager} from "./utils/UnitManager.js";
+import {timeManager} from "./utils/TimeManager.js";
 import {i18n} from "./i18n/i18n.js";
 
 // Make API available globally for debugging
 window.api = api;
 window.router = router;
+window.unitSwitcher = unitManager;
+window.timeManager = timeManager;
 
 document.addEventListener('DOMContentLoaded', () => {
     updateDynamicContent();
 
     new OffCanvasManager();
     new LanguageSwitcher('language-switcher');
+    new UnitSwitcher('unit-switcher');
 });
 
 // Define routes
@@ -37,6 +43,13 @@ window.router
 i18n.subscribe(() => {
     router.handleRoute();
 });
+window.unitSwitcher.subscribe(() => {
+    router.handleRoute();
+})
+
+window.timeManager.subscribe(() => {
+    router.handleRoute();
+})
 
 // Initialize app
 console.log('WeatherMaestro UI initialized');
