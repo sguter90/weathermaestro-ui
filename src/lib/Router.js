@@ -48,8 +48,11 @@ export class Router {
    * Parse route parameters
    */
   parseRoute(routePath, actualPath) {
+    // Remove query parameters from actualPath
+    const cleanPath = actualPath.split('?')[0];
+
     const routeParts = routePath.split('/').filter(Boolean);
-    const actualParts = actualPath.split('/').filter(Boolean);
+    const actualParts = cleanPath.split('/').filter(Boolean);
 
     if (routeParts.length !== actualParts.length) {
       return null;
