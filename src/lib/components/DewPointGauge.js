@@ -29,8 +29,9 @@ export class DewPointGauge extends Gauge {
         return `
             <defs>
                 <style>
-                    .dewpoint-label { font-family: Arial; font-size: 12px; fill: #666; }
-                    .dewpoint-value { font-family: Arial; font-size: 18px; font-weight: bold; fill: ${this.getColor()}; }
+                    .dewpoint-label { font-family: Arial; font-size: 12px; fill: #888; }
+                    .dewpoint-value { font-family: Arial; font-size: 25px; font-weight: bold; fill: #333 }
+                    .dewpoint-description { font-family: Arial; font-size: 11px; fill: #999; }
                 </style>
                 <linearGradient id="${this.id}-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" stop-color="#1E88E5"></stop>
@@ -52,21 +53,21 @@ export class DewPointGauge extends Gauge {
                 ${this.generateDefs()}
                 
                 <!-- Background circle -->
-                <circle cx="100" cy="100" r="90" fill="none" stroke="#e0e0e0" stroke-width="8"></circle>
+                <circle cx="100" cy="100" r="83" fill="none" stroke="#e0e0e0" stroke-width="14"></circle>
                 
                 <!-- Gradient circle (progress) -->
-                <circle cx="100" cy="100" r="90" fill="none" stroke="url(#${this.id}-gradient)" stroke-width="8"
-                        stroke-dasharray="${(clampedPercentage / 100) * 565.48} 565.48"
+                <circle cx="100" cy="100" r="83" fill="none" stroke="url(#${this.id}-gradient)" stroke-width="14"
+                        stroke-dasharray="${(clampedPercentage / 100) * 521.76} 521.76"
                         stroke-linecap="round" transform="rotate(-90 100 100)"></circle>
                 
-                <!-- Value in center -->
-                <text x="100" y="90" text-anchor="middle" class="dewpoint-value">${this.value.toFixed(1)}</text>
-                <text x="100" y="110" text-anchor="middle" class="dewpoint-label">${this.unit}</text>
-                
                 <!-- Description -->
-                <text x="100" y="160" text-anchor="middle" class="dewpoint-label" font-size="10">
+                <text x="100" y="80" text-anchor="middle" class="dewpoint-description">
                     ${this.getDewPointDescription()}
                 </text>
+                
+                <!-- Value in center -->
+                <text x="100" y="110" text-anchor="middle" class="dewpoint-value">${this.value.toFixed(1)}</text>
+                <text x="100" y="138" text-anchor="middle" class="dewpoint-label">${this.unit}</text>
             </svg>
         `;
     }
