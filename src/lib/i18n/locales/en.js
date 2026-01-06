@@ -36,6 +36,8 @@ export const en = {
     HUMIDITY: 'Humidity',
     WIND: 'Wind',
     WIND_DIR: 'Wind Direction',
+    WIND_GUST: 'Wind Gust',
+    MAX_DAILY_GUST: 'Max (Day)',
     PRESSURE: 'Pressure',
     RAIN: 'Rain',
     RAIN_RATE: 'Rain Rate',

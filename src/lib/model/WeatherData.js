@@ -278,6 +278,34 @@ export class WeatherData {
   }
 
   /**
+   * Get wind gust with unit conversion
+   */
+  getWindGust() {
+    return uiConfigManager.convert(this.windGustMS, 'windSpeed');
+  }
+
+  /**
+   * Get max daily gust with unit conversion
+   */
+  getMaxDailyGust() {
+    return uiConfigManager.convert(this.maxDailyGustMS, 'windSpeed');
+  }
+
+  /**
+   * Get wind gust formatted with unit
+   */
+  getWindGustFormatted() {
+    return `${this.getWindGust().toFixed(1)} ${this.getWindUnit()}`;
+  }
+
+  /**
+   * Get max daily gust formatted with unit
+   */
+  getMaxDailyGustFormatted() {
+    return `${this.getMaxDailyGust().toFixed(1)} ${this.getWindUnit()}`;
+  }
+
+  /**
    * Convert to plain object
    */
   toJSON() {

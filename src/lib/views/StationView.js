@@ -5,6 +5,7 @@ import {WindCompass} from "../components/WindCompass.js";
 import {RainGauge} from "../components/RainGauge.js";
 import {UVIndexGauge} from "../components/UVIndexGauge.js";
 import {DewPointGauge} from "../components/DewPointGauge.js";
+import {WindGustGauge} from "../components/WindGustGauge.js";
 import {renderBreadcrumbs} from "../components/Breadcrumbs.js";
 import {i18n} from "../i18n/i18n.js";
 import {dateFormatter} from "../DateFormatter.js";
@@ -89,6 +90,15 @@ export async function renderStationView(params) {
             id: 'wind-compass'
         });
 
+        const windGustGauge = new WindGustGauge({
+            currentGust: weatherData.getWindGust(),
+            maxDailyGust: weatherData.getMaxDailyGust(),
+            min: 0,
+            max: 100,
+            unit: weatherData.getWindUnit(),
+            id: 'wind-gust-gauge'
+        });
+
         const uvGauge = new UVIndexGauge({
             value: weatherData.uv,
             id: 'uv-gauge',
@@ -163,6 +173,11 @@ export async function renderStationView(params) {
             <div class="gauge-container">
               <h3>${i18n.t('HEAT_INDEX')}</h3>
               ${heatIndexGauge.render()}
+            </div>
+            
+            <div class="gauge-container">
+              <h3>${i18n.t('WIND_GUST')}</h3>
+              ${windGustGauge.render()}
             </div>
           </div>
         </section>
