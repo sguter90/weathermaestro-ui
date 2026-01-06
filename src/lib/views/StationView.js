@@ -29,8 +29,26 @@ export async function renderStationView(params) {
             id: 'temp-gauge'
         });
 
+        const tempGaugeIndoor = new TemperatureGauge({
+            value: weatherData.getIndoorTemp(),
+            min: -40,
+            max: 60,
+            unit: weatherData.getTempUnit(),
+            id: 'temp-gauge'
+        });
+
         const humidityGauge = new CircularGauge({
             value: weatherData.humidityOut,
+            min: 0,
+            max: 100,
+            unit: '%',
+            label: i18n.t('HUMIDITY'),
+            color: '#2196F3',
+            id: 'humidity-gauge'
+        });
+
+        const humidityGaugeIndoor = new CircularGauge({
+            value: weatherData.humidityIn,
             min: 0,
             max: 100,
             unit: '%',
@@ -164,8 +182,18 @@ export async function renderStationView(params) {
             </div>
             
             <div class="gauge-container">
+              <h3>${i18n.t('INDOOR_TEMP')}</h3>
+              ${tempGaugeIndoor.render()}
+            </div>
+            
+            <div class="gauge-container">
               <h3>${i18n.t('HUMIDITY')}</h3>
               ${humidityGauge.render()}
+            </div>
+            
+            <div class="gauge-container">
+              <h3>${i18n.t('INDOOR_HUMIDITY')}</h3>
+              ${humidityGaugeIndoor.render()}
             </div>
             
             <div class="gauge-container">
@@ -231,31 +259,6 @@ export async function renderStationView(params) {
             <div class="gauge-container">
               <h3>${i18n.t('SOLAR_RADIATION')}</h3>
               ${solarRadiationGauge.render()}
-            </div>
-          </div>
-        </section>
-        
-        <section class="weather-details">
-          <h2>${i18n.t('ADDITIONAL_DETAILS')}</h2>
-          <div class="details-grid">
-            <div class="detail-card">
-              <span class="detail-label">${i18n.t('HOURLY_RAIN')}</span>
-              <span class="detail-value">${weatherData.getHourlyRain().toFixed(1)} ${weatherData.getRainUnit()}</span>
-            </div>
-            
-            <div class="detail-card">
-              <span class="detail-label">${i18n.t('SOLAR_RADIATION')}</span>
-              <span class="detail-value">${weatherData.solarRadiation} W/m²</span>
-            </div>
-            
-            <div class="detail-card">
-              <span class="detail-label">${i18n.t('INDOOR_TEMP')}</span>
-              <span class="detail-value">${weatherData.getIndoorTemp().toFixed(1)}${weatherData.getTempUnit()}</span>
-            </div>
-            
-            <div class="detail-card">
-              <span class="detail-label">${i18n.t('INDOOR_HUMIDITY')}</span>
-              <span class="detail-value">${weatherData.humidityIn}%</span>
             </div>
           </div>
         </section>
