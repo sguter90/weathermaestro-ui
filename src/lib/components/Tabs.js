@@ -33,8 +33,8 @@ export class Tabs {
         if (activePanel) activePanel.hidden = false;
 
         const tabName = event.target.id.replace('tab-', '');
-        const currentHash = window.location.hash.split('?')[0];
-        window.location.hash = `${currentHash}?tab=${tabName}`;
+        const currentHash = window.location.hash.slice(1).split('?')[0];
+        window.history.replaceState(null, '', `#${currentHash}?tab=${tabName}`);
     }
 
     activateTabFromUrl() {
@@ -48,7 +48,7 @@ export class Tabs {
 
             if (tab) {
                 tab.checked = true;
-                tab.dispatchEvent(new Event('change', {bubbles: true}));
+                this.handleTabChange({ target: tab });
                 return;
             }
         }
@@ -56,7 +56,7 @@ export class Tabs {
         // Fallback: activate first tab
         if (this.radios.length > 0) {
             this.radios[0].checked = true;
-            this.radios[0].dispatchEvent(new Event('change', {bubbles: true}));
+            this.handleTabChange({ target: this.radios[0] });
         }
     }
 
