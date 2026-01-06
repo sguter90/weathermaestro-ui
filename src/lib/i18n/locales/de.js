@@ -15,6 +15,7 @@ export const de = {
     TIME_FORMAT_24_HOUR: '24-Stunden',
     DATE_FORMAT: 'Datumsformat',
     DATE: 'Datum',
+    LAST_UPDATE: 'Letzte Aktualisierung',
 
     HOME: 'Startseite',
     WEATHER_STATIONS: 'Wetterstationen',

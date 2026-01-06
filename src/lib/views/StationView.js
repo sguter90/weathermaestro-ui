@@ -175,7 +175,7 @@ export async function renderStationView(params) {
         <div class="view-header-container">
           <div>
             <h1 class="view-header">${i18n.t('CURRENT_WEATHER')}</h1>
-            <p class="timestamp">${dateFormatter.formatDateTime(weatherData.dateUTC)}</p>
+            <p class="timestamp">${i18n.t('LAST_UPDATE')}: ${dateFormatter.formatDateTime(weatherData.dateUTC)}</p>
           </div>
           <a href="#/station/${id}/history" class="btn">
             <span class="icon">${renderIcon('wind')}</span>
