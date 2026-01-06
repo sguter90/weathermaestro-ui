@@ -1,55 +1,41 @@
 .app-breadcrumb {
+  margin-top: 5px;
   margin-bottom: 20px;
-  padding: 10px 20px;
+  padding: 15px;
   background-color: var(--color-background-light);
-  border-bottom: 1px solid var(--color-border);
   box-shadow: 0 1px 3px rgba(var(--color-border-rgb), 0.5);
-  border-radius: 6px;
+  font-size: 1rem;
+  white-space: nowrap;
 }
 
 .breadcrumb {
+  list-style: none;
+  align-items: flex-start;
   display: flex;
   flex-wrap: wrap;
-  padding: 0;
+  justify-content: flex-start;
   margin: 0;
-  list-style: none;
-  font-size: 0.95em;
-  color: var(--color-text-secondary);
-  align-items: center;
+  padding: 0;
 }
 
-.breadcrumb-item {
+.breadcrumb li {
+  align-items: center;
   display: flex;
+}
+
+.breadcrumb a, .breadcrumb span {
   align-items: center;
-}
-
-.breadcrumb-item + .breadcrumb-item::before {
-  display: inline-block;
-  padding: 0 0.4rem;
-  color: var(--color-text-secondary);
-  content: ">";
-  font-weight: bold;
-}
-
-.breadcrumb-item .breadcrumb-label {
-  color: var(--color-primary);
+  display: flex;
+  justify-content: center;
+  padding: 0 .75em 0 0.75em;
   text-decoration: none;
-  padding: 5px 8px;
-  transition: color 0.2s ease;
-  border-radius: 3px;
 }
 
-.breadcrumb-item .breadcrumb-label:hover {
-  background-color: rgba(var(--color-primary-rgb), 0.1);
+.breadcrumb li:first-child a {
+  padding-left: 0;
 }
 
-.breadcrumb-item a.breadcrumb-label:hover {
-  color: var(--color-primary-dark);
-  text-decoration: underline;
-}
-
-.breadcrumb-item.active {
-  color: var(--color-text-primary);
-  font-weight: bold;
-  padding: 0 0.5rem;
+.breadcrumb li + li::before {
+  color: var(--color-border);
+  content: "/";
 }

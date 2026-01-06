@@ -13,9 +13,9 @@ export async function renderHomeView() {
 
         const html = `
       ${renderBreadcrumbs([
-            {label: i18n.t('HOME'), url: '/'},
+            {label: `<span class="icon icon-sm">${renderIcon('home')}</span>`, url: '/'},
         ])}
-      <div class="home-view">
+      <div class="view home-view">
         <h1 class="view-header">${i18n.t('WEATHER_STATIONS')}</h1>
         <div class="stations-grid">
           ${stations.map(station => `

@@ -21,12 +21,14 @@ export const en = {
     ACTIVE: 'Active',
     INACTIVE: 'Inactive',
     NO_WEATHER_DATA: 'No recent weather data available.',
+    INDOOR: 'Indoor',
+    OUTDOOR: 'Outdoor',
+    ATMOSPHERE: 'Atmosphere',
 
     LOADING_WEATHER_DATA: 'Loading weather data...',
     CURRENT_WEATHER: 'Current Weather',
     CURRENT_MEASUREMENTS: 'Current Measurements',
     ADDITIONAL_DETAILS: 'Additional Details',
-    SHOW_HISTORY: 'Show History',
 
     HISTORY: 'History',
     WEATHER_HISTORY: 'Weather History',

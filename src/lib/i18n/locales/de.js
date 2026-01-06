@@ -21,12 +21,14 @@ export const de = {
     ACTIVE: 'Aktiv',
     INACTIVE: 'Inaktiv',
     NO_WEATHER_DATA: 'Keine neuen Wetterdaten verfügbar',
+    INDOOR: 'Innen',
+    OUTDOOR: 'Außen',
+    ATMOSPHERE: 'Atmosphäre',
 
     LOADING_WEATHER_DATA: 'Lade Wetterdaten...',
     CURRENT_WEATHER: 'Aktuelles Wetter',
     CURRENT_MEASUREMENTS: 'Aktuelle Messungen',
     ADDITIONAL_DETAILS: 'Zusätzliche Details',
-    SHOW_HISTORY: 'Historie anzeigen',
 
     HISTORY: 'Historie',
     WEATHER_HISTORY: 'Wetter-Historie',

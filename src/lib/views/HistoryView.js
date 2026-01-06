@@ -4,6 +4,7 @@ import {i18n} from "../i18n/i18n.js";
 import {dateFormatter} from "../DateFormatter.js";
 import {uiConfigManager} from '../UiConfigManager.js';
 import {apiClient} from "../ApiClient.js";
+import {renderIcon} from "../components/Icons.js";
 
 export async function renderHistoryView(params) {
     const {id} = params;
@@ -17,11 +18,11 @@ export async function renderHistoryView(params) {
 
         const html = `
       ${renderBreadcrumbs([
-            {label: i18n.t('HOME'), url: '/'},
+            {label: `<span class="icon icon-sm">${renderIcon('home')}</span>`, url: '/'},
             {label: station.getDisplayName(), url: `/station/${id}`},
             {label: i18n.t('HISTORY'), url: `/station/${id}/history`}
         ])}
-      <div class="history-view">
+      <div class="view history-view">
         <h1 class="view-header">${i18n.t('WEATHER_HISTORY')}</h1>
         
         <div class="history-table">
