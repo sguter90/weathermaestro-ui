@@ -36,7 +36,7 @@ export async function renderStationView(params) {
             min: -40,
             max: 60,
             unit: weatherData.getTempUnit(),
-            id: 'temp-gauge'
+            id: 'temp-gauge-indoor'
         });
 
         const humidityGauge = new CircularGauge({
@@ -56,7 +56,7 @@ export async function renderStationView(params) {
             unit: '%',
             label: i18n.t('HUMIDITY'),
             color: '#2196F3',
-            id: 'humidity-gauge'
+            id: 'humidity-gauge-indoor'
         });
 
         // Apparent temperature (feels like) gauge
@@ -92,7 +92,7 @@ export async function renderStationView(params) {
             max: weatherData.getRainMax(),
             unit: weatherData.getRainUnit(),
             label: i18n.t('DAILY_RAIN'),
-            id: 'rain-gauge'
+            id: 'rain-gauge-daily'
         });
 
         const rainGaugeWeekly = new RainGauge({
@@ -101,7 +101,7 @@ export async function renderStationView(params) {
             max: weatherData.getRainMax(),
             unit: weatherData.getRainUnit(),
             label: i18n.t('WEEKLY_RAIN'),
-            id: 'rain-gauge'
+            id: 'rain-gauge-weekly'
         });
 
         const rainGaugeMonthly = new RainGauge({
@@ -109,8 +109,8 @@ export async function renderStationView(params) {
             min: 0,
             max: weatherData.getRainMax(),
             unit: weatherData.getRainUnit(),
-            label: i18n.t('WEEKLY_RAIN'),
-            id: 'rain-gauge'
+            label: i18n.t('MONTHLY_RAIN'),
+            id: 'rain-gauge-monthly'
         });
 
         const rainGaugeYearly = new RainGauge({
@@ -119,7 +119,7 @@ export async function renderStationView(params) {
             max: weatherData.getRainMax(),
             unit: weatherData.getRainUnit(),
             label: i18n.t('YEARLY_RAIN'),
-            id: 'rain-gauge'
+            id: 'rain-gauge-yearly'
         });
 
         const rainRateGauge = new CircularGauge({
