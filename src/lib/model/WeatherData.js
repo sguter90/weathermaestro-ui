@@ -120,6 +120,35 @@ export class WeatherData {
   }
 
   /**
+   * Get weekly rain with unit conversion
+   */
+  getWeeklyRain() {
+    return uiConfigManager.convert(this.weeklyRainMm, 'rain');
+  }
+
+  /**
+   * Get monthly rain with unit conversion
+   */
+  getMonthlyRain() {
+    return uiConfigManager.convert(this.monthlyRainMm, 'rain');
+  }
+
+  /**
+   * Get yearly rain with unit conversion
+   */
+  getYearlyRain() {
+    return uiConfigManager.convert(this.yearlyRainMm, 'rain');
+  }
+
+  /**
+   * Get yearly rain with unit conversion
+   */
+  getRainRate() {
+    return uiConfigManager.convert(this.rainRateMmH, 'rain');
+  }
+
+
+  /**
    * Get rain unit
    */
   getRainUnit() {

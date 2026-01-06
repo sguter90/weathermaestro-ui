@@ -66,7 +66,7 @@ export async function renderStationView(params) {
             id: 'pressure-gauge'
         });
 
-        const rainGauge = new RainGauge({
+        const rainGaugeDaily = new RainGauge({
             value: weatherData.getDailyRain(),
             min: 0,
             max: weatherData.getRainMax(),
@@ -75,8 +75,35 @@ export async function renderStationView(params) {
             id: 'rain-gauge'
         });
 
+        const rainGaugeWeekly = new RainGauge({
+            value: weatherData.getWeeklyRain(),
+            min: 0,
+            max: weatherData.getRainMax(),
+            unit: weatherData.getRainUnit(),
+            label: i18n.t('WEEKLY_RAIN'),
+            id: 'rain-gauge'
+        });
+
+        const rainGaugeMonthly = new RainGauge({
+            value: weatherData.getMonthlyRain(),
+            min: 0,
+            max: weatherData.getRainMax(),
+            unit: weatherData.getRainUnit(),
+            label: i18n.t('WEEKLY_RAIN'),
+            id: 'rain-gauge'
+        });
+
+        const rainGaugeYearly = new RainGauge({
+            value: weatherData.getYearlyRain(),
+            min: 0,
+            max: weatherData.getRainMax(),
+            unit: weatherData.getRainUnit(),
+            label: i18n.t('YEARLY_RAIN'),
+            id: 'rain-gauge'
+        });
+
         const rainRateGauge = new CircularGauge({
-            value: weatherData.getHourlyRain(),
+            value: weatherData.getRainRate(),
             min: 0,
             max: 50,
             unit: weatherData.getRainUnit() + '/h',
@@ -158,7 +185,22 @@ export async function renderStationView(params) {
             
             <div class="gauge-container">
               <h3>${i18n.t('DAILY_RAIN')}</h3>
-              ${rainGauge.render()}
+              ${rainGaugeDaily.render()}
+            </div>
+            
+            <div class="gauge-container">
+              <h3>${i18n.t('WEEKLY_RAIN')}</h3>
+              ${rainGaugeWeekly.render()}
+            </div>
+            
+            <div class="gauge-container">
+              <h3>${i18n.t('MONTHLY_RAIN')}</h3>
+              ${rainGaugeMonthly.render()}
+            </div>
+            
+            <div class="gauge-container">
+              <h3>${i18n.t('YEARLY_RAIN')}</h3>
+              ${rainGaugeYearly.render()}
             </div>
             
             <div class="gauge-container">
