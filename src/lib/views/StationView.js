@@ -85,6 +85,14 @@ export async function renderStationView(params) {
             id: 'uv-gauge',
         });
 
+        const heatIndexGauge = new TemperatureGauge({
+            value: weatherData.getHeatIndex(),
+            min: -40,
+            max: 60,
+            unit: weatherData.getTempUnit(),
+            id: 'heat-index-gauge'
+        });
+
         const html = `
       ${renderBreadcrumbs([
             {label: i18n.t('HOME'), url: '/'},
@@ -136,6 +144,11 @@ export async function renderStationView(params) {
             <div class="gauge-container">
               <h3>${i18n.t('APPARENT_TEMPERATURE')}</h3>
               ${apparentTempGauge.render()}
+            </div>
+            
+            <div class="gauge-container">
+              <h3>${i18n.t('HEAT_INDEX')}</h3>
+              ${heatIndexGauge.render()}
             </div>
           </div>
         </section>

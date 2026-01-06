@@ -44,6 +44,7 @@ export const de = {
     HEIGHT: 'Höhe',
     SOLAR_RADIATION: 'Sonneneinstrahlung',
     DEW_POINT: 'Taupunkt',
+    HEAT_INDEX: 'Hitzeindex',
     INDOOR_TEMP: 'Temperatur (Innen)',
     INDOOR_HUMIDITY: 'Luftfeuchtigkeit (Innen)',
     UV_CAT_LOW: 'Niedrig',

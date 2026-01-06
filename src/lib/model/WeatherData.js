@@ -205,7 +205,6 @@ export class WeatherData {
    */
   getApparentTemp() {
     const temp = this.tempOutC;
-    const humidity = this.humidityOut;
     const windSpeedKmH = this.windSpeedMS * 3.6;
 
     // Wind chill formula (valid for temp < 10°C and wind >= 4.8 km/h)
@@ -216,17 +215,7 @@ export class WeatherData {
 
     // Heat index formula (valid for temp >= 26.67°C)
     if (temp >= 26.67) {
-      const c1 = -42.379;
-      const c2 = 2.04901523;
-      const c3 = 10.14333127;
-      const c4 = -0.22475541;
-      const c5 = -0.00683783;
-      const c6 = -0.05481717;
-      const c7 = 0.00122874;
-      const c8 = 0.00085282;
-      const c9 = -0.00000199;
-
-      const heatIndex = c1 + (c2 * temp) + (c3 * humidity) + (c4 * temp * humidity) + (c5 * temp * temp) + (c6 * humidity * humidity) + (c7 * temp * temp * humidity) + (c8 * temp * humidity * humidity) + (c9 * temp * temp * humidity * humidity);
+      const heatIndex = this._calculateHeatIndexC();
       return uiConfigManager.convert(heatIndex, 'temperature');
     }
 
@@ -240,6 +229,52 @@ export class WeatherData {
    */
   getApparentTempFormatted() {
     return `${this.getApparentTemp().toFixed(1)}${this.getTempUnit()}`;
+  }
+
+  /**
+   * Calculates the heat index based on temperature and humidity
+   * Uses the standard heat index formula (valid for temp >= 26.67°C)
+   * @returns {number} Heat index in Celsius
+   * @private
+   */
+  _calculateHeatIndexC() {
+    const temp = this.tempOutC;
+    const humidity = this.humidityOut;
+
+    // Heat index formula only applies for temperatures >= 26.67°C
+    if (temp < 26.67) {
+      return temp;
+    }
+
+    const c1 = -42.379;
+    const c2 = 2.04901523;
+    const c3 = 10.14333127;
+    const c4 = -0.22475541;
+    const c5 = -0.00683783;
+    const c6 = -0.05481717;
+    const c7 = 0.00122874;
+    const c8 = 0.00085282;
+    const c9 = -0.00000199;
+
+    return c1 + (c2 * temp) + (c3 * humidity) + (c4 * temp * humidity) + (c5 * temp * temp) + (c6 * humidity * humidity) + (c7 * temp * temp * humidity) + (c8 * temp * humidity * humidity) + (c9 * temp * temp * humidity * humidity);
+  }
+
+  /**
+   * Calculates the heat index based on temperature and humidity
+   * Uses the standard heat index formula (valid for temp >= 26.67°C)
+   * @returns {number} Heat index in the current temperature unit
+   */
+  getHeatIndex() {
+    const heatIndexC = this._calculateHeatIndexC();
+    return uiConfigManager.convert(heatIndexC, 'temperature');
+  }
+
+  /**
+   * Returns the heat index formatted with unit
+   * @returns {string}
+   */
+  getHeatIndexFormatted() {
+    return `${this.getHeatIndex().toFixed(1)}${this.getTempUnit()}`;
   }
 
   /**
