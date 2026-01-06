@@ -39,26 +39,26 @@ export class WindGustGauge extends CircularGauge {
 
     generateDisplay() {
         const centerX = this.width / 2;
-        const centerY = this.height / 6 * 4;
+        const centerY = this.height / 2;
 
         return `
             <g class="display" id="${this.id}-display">
-                <text class="value-text" x="${centerX}" y="${centerY + 10}" 
+                <text class="gauge-units" x="${centerX}" y="${centerY + 38}" 
                       text-anchor="middle" 
                       font-family="Arial" 
-                      font-size="22" 
+                      font-size="12" 
+                      fill="#888">${this.unit}</text>
+                <text class="value-text" x="${centerX}" y="${centerY + 74}" 
+                      text-anchor="middle" 
+                      font-family="Arial" 
+                      font-size="25" 
                       font-weight="bold"
-                      fill="${this.getGustColor()}">${this.currentGust.toFixed(1)}</text>
-                <text class="gauge-units" x="${centerX}" y="${centerY + 25}" 
+                      fill="#1a1a2e">${this.currentGust.toFixed(1)}</text>
+                <text class="max-daily" x="${centerX}" y="${centerY + 50}" 
                       text-anchor="middle" 
                       font-family="Arial" 
                       font-size="10" 
-                      fill="#888">${this.unit}</text>
-                <text class="max-daily" x="${centerX}" y="${centerY + 42}" 
-                      text-anchor="middle" 
-                      font-family="Arial" 
-                      font-size="9" 
-                      fill="#999">${i18n.t('MAX_DAILY_GUST')}: ${this.maxDailyGust.toFixed(1)}</text>
+                      fill="#888888">${i18n.t('MAX_DAILY_GUST')}: ${this.maxDailyGust.toFixed(1)}</text>
             </g>
         `;
     }
