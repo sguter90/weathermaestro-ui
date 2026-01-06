@@ -8,6 +8,7 @@ class AppConfig {
     this.defaultAppName = 'WeatherMaestro';
     this.defaultAppDescription = this.defaultAppName;
     this.allowedConfigKeys = ['APP_NAME', 'APP_DESCRIPTION'];
+    this.primaryColor = '#0d529c'; // Fallback, wird von CSS Variable überschrieben
   }
 
   /**
@@ -49,6 +50,16 @@ class AppConfig {
   }
 
   /**
+   * Extracts the primary color from CSS variables
+   * @returns {string} The primary color in hex format
+   */
+  getPrimaryColor() {
+    const root = document.documentElement;
+    const computedStyle = getComputedStyle(root);
+    return computedStyle.getPropertyValue('--primary-color').trim() || this.primaryColor;
+  }
+
+  /**
    * Updates the document title and meta description
    */
   updateDocumentMetadata() {
@@ -63,6 +74,49 @@ class AppConfig {
     if (metaDescriptionElement) {
       metaDescriptionElement.setAttribute('content', appDescription);
     }
+  }
+
+  /**
+   * Updates PWA meta tags dynamically
+   */
+  updatePWAMetaTags() {
+    const appName = this.getAppName();
+    const primaryColor = this.getPrimaryColor();
+
+    // Theme color
+    this.updateOrCreateMetaTag('theme-color', primaryColor);
+
+    // Apple mobile web app title
+    this.updateOrCreateMetaTag('apple-mobile-web-app-title', appName);
+
+    // Microsoft tile color
+    this.updateOrCreateMetaTag('msapplication-TileColor', primaryColor);
+  }
+
+  /**
+   * Helper method to update or create a meta tag
+   * @param {string} name The meta tag name or property
+   * @param {string} content The content value
+   * @param {boolean} isProperty Whether to use property instead of name attribute
+   */
+  updateOrCreateMetaTag(name, content, isProperty = false) {
+    const selector = isProperty 
+      ? `meta[property="${name}"]` 
+      : `meta[name="${name}"]`;
+    
+    let metaTag = document.querySelector(selector);
+
+    if (!metaTag) {
+      metaTag = document.createElement('meta');
+      if (isProperty) {
+        metaTag.setAttribute('property', name);
+      } else {
+        metaTag.setAttribute('name', name);
+      }
+      document.head.appendChild(metaTag);
+    }
+
+    metaTag.setAttribute('content', content);
   }
 
   /**
@@ -91,10 +145,11 @@ class AppConfig {
 
   /**
    * Initializes the app configuration
-   * Updates document metadata and config elements
+   * Updates document metadata, PWA tags and config elements
    */
   init() {
     this.updateDocumentMetadata();
+    this.updatePWAMetaTags();
     this.updateConfigElements();
   }
 }
