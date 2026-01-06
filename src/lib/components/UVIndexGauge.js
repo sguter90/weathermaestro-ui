@@ -1,5 +1,5 @@
-
 import { Gauge } from './Gauge.js';
+import { Weather } from '../Weather.js';
 
 /**
  * UV Index gauge with color-coded bands
@@ -133,7 +133,7 @@ export class UVIndexGauge extends Gauge {
               text-anchor="middle" 
               alignment-baseline="middle" 
               font-family="Arial" 
-              font-size="11.55" 
+              font-size="11" 
               fill="#888">${label}</text>
       `);
     }
@@ -144,18 +144,20 @@ export class UVIndexGauge extends Gauge {
   generateDisplay() {
     const centerX = this.width / 2;
     const centerY = this.height / 2;
+    const uvCategory = Weather.getUVCategoryLabel(this.value);
 
     return `
       <g class="display" id="${this.id}-display">
-        <text class="gauge-units" x="${centerX}" y="${centerY + 40.38}" 
+        <text class="gauge-units" x="${centerX}" y="${centerY + 38}" 
               text-anchor="middle" 
               font-family="Arial" 
-              font-size="12.6" 
-              fill="#333">${this.unit}</text>
-        <text class="uvi-value-text" x="${centerX}" y="${centerY + 77.7}" 
+              font-size="12" 
+              fill="#888">${uvCategory}</text>
+        <text class="value-text" x="${centerX}" y="${centerY + 74}" 
               text-anchor="middle" 
               font-family="Arial" 
-              font-size="26.25" 
+              font-size="25" 
+              font-weight="bold"
               fill="#333">${this.value.toFixed(1)}</text>
       </g>
     `;

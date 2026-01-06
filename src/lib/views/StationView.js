@@ -169,7 +169,6 @@ export async function renderStationView(params) {
             <div class="gauge-container">
               <h3>${i18n.t('UV_INDEX')}</h3>
               ${uvGauge.render()}
-              <p class="gauge-info">${weatherData.getUVCategory()}</p>
             </div>
             
             <div class="gauge-container">
