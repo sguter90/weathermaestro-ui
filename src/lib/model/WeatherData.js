@@ -199,6 +199,50 @@ export class WeatherData {
   }
 
   /**
+   * Calculates the apparent temperature (feels like) based on temperature, humidity, and wind speed
+   * Uses wind chill formula for cold temperatures with wind and heat index formula for warm temperatures
+   * @returns {number} Apparent temperature in the current temperature unit
+   */
+  getApparentTemp() {
+    const temp = this.tempOutC;
+    const humidity = this.humidityOut;
+    const windSpeedKmH = this.windSpeedMS * 3.6;
+
+    // Wind chill formula (valid for temp < 10°C and wind >= 4.8 km/h)
+    if (temp < 10 && windSpeedKmH >= 4.8) {
+      const windChill = 13.12 + (0.6215 * temp) - (11.37 * Math.pow(windSpeedKmH, 0.16)) + (0.3965 * temp * Math.pow(windSpeedKmH, 0.16));
+      return uiConfigManager.convert(windChill, 'temperature');
+    }
+
+    // Heat index formula (valid for temp >= 26.67°C)
+    if (temp >= 26.67) {
+      const c1 = -42.379;
+      const c2 = 2.04901523;
+      const c3 = 10.14333127;
+      const c4 = -0.22475541;
+      const c5 = -0.00683783;
+      const c6 = -0.05481717;
+      const c7 = 0.00122874;
+      const c8 = 0.00085282;
+      const c9 = -0.00000199;
+
+      const heatIndex = c1 + (c2 * temp) + (c3 * humidity) + (c4 * temp * humidity) + (c5 * temp * temp) + (c6 * humidity * humidity) + (c7 * temp * temp * humidity) + (c8 * temp * humidity * humidity) + (c9 * temp * temp * humidity * humidity);
+      return uiConfigManager.convert(heatIndex, 'temperature');
+    }
+
+    // For moderate temperatures, return actual temperature
+    return uiConfigManager.convert(temp, 'temperature');
+  }
+
+  /**
+   * Returns the apparent temperature formatted with unit
+   * @returns {string}
+   */
+  getApparentTempFormatted() {
+    return `${this.getApparentTemp().toFixed(1)}${this.getTempUnit()}`;
+  }
+
+  /**
    * Convert to plain object
    */
   toJSON() {

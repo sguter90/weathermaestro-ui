@@ -32,6 +32,7 @@ export const en = {
     WEATHER_HISTORY: 'Weather History',
 
     TEMPERATURE: 'Temperature',
+    APPARENT_TEMPERATURE: 'Apparent Temperature',
     HUMIDITY: 'Humidity',
     WIND: 'Wind',
     WIND_DIR: 'Wind Direction',

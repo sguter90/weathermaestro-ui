@@ -46,4 +46,20 @@ export class Weather {
         if (value < 20) return i18n.t('DEW_VERY_HUMID');
         return i18n.t('DEW_EXTREMELY_HUMID');
     }
+
+    /**
+     * Get label for apparent temperature condition
+     * @param {number} apparentTemp The apparent temperature value
+     * @param {number} actualTemp The actual temperature value
+     * @returns {string} Description of the apparent temperature condition
+     */
+    static getApparentTempLabel(apparentTemp, actualTemp) {
+        const difference = apparentTemp - actualTemp;
+
+        if (difference < -5) return 'Much colder';
+        if (difference < -2) return 'Colder';
+        if (difference > 5) return 'Much warmer';
+        if (difference > 2) return 'Warmer';
+        return 'Similar';
+    }
 }

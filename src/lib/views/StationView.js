@@ -37,6 +37,15 @@ export async function renderStationView(params) {
             id: 'humidity-gauge'
         });
 
+        // Apparent temperature (feels like) gauge
+        const apparentTempGauge = new TemperatureGauge({
+            value: weatherData.getApparentTemp(),
+            min: -40,
+            max: 60,
+            unit: weatherData.getTempUnit(),
+            id: 'apparent-temp-gauge'
+        });
+
         const dewPointGauge = new DewPointGauge({
             value: weatherData.getDewPoint(),
             min: -40,
@@ -122,6 +131,11 @@ export async function renderStationView(params) {
               <h3>${i18n.t('UV_INDEX')}</h3>
               ${uvGauge.render()}
               <p class="gauge-info">${weatherData.getUVCategory()}</p>
+            </div>
+            
+            <div class="gauge-container">
+              <h3>${i18n.t('APPARENT_TEMPERATURE')}</h3>
+              ${apparentTempGauge.render()}
             </div>
           </div>
         </section>

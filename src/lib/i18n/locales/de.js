@@ -32,6 +32,7 @@ export const de = {
     WEATHER_HISTORY: 'Wetter-Historie',
 
     TEMPERATURE: 'Temperatur',
+    APPARENT_TEMPERATURE: 'Gefühlte Temperatur',
     HUMIDITY: 'Luftfeuchtigkeit',
     WIND: 'Wind',
     WIND_DIR: 'Windrichtung',
