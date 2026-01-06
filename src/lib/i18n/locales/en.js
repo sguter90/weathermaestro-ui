@@ -38,6 +38,7 @@ export const en = {
     WIND_DIR: 'Wind Direction',
     PRESSURE: 'Pressure',
     RAIN: 'Rain',
+    RAIN_RATE: 'Rain Rate',
     DAILY_RAIN: 'Rain (Day)',
     HOURLY_RAIN: 'Rain (Hour)',
     UV_INDEX: 'UV Index',

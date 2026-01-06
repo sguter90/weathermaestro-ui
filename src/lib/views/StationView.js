@@ -73,6 +73,15 @@ export async function renderStationView(params) {
             id: 'rain-gauge'
         });
 
+        const rainRateGauge = new CircularGauge({
+            value: weatherData.getHourlyRain(),
+            min: 0,
+            max: 50,
+            unit: weatherData.getRainUnit() + '/h',
+            label: i18n.t('RAIN_RATE'),
+            id: 'rain-rate-gauge'
+        });
+
         const windCompass = new WindCompass({
             direction: weatherData.windDir,
             speed: weatherData.getWindSpeed(),
@@ -133,6 +142,11 @@ export async function renderStationView(params) {
             <div class="gauge-container">
               <h3>${i18n.t('DAILY_RAIN')}</h3>
               ${rainGauge.render()}
+            </div>
+            
+            <div class="gauge-container">
+              <h3>${i18n.t('RAIN_RATE')}</h3>
+              ${rainRateGauge.render()}
             </div>
             
             <div class="gauge-container">

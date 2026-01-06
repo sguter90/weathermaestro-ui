@@ -38,6 +38,15 @@ export class CircularGauge extends Gauge {
         { threshold: 1020, color: '#7FC3DD' },
         { threshold: 1040, color: '#49AFCD' }
       ];
+    } else if (this.unit === 'mm/h' || this.unit === 'in/h') {
+      // Rain rate colors (blue tones)
+      return [
+        { threshold: 0, color: '#E3F2FD' },
+        { threshold: 2.5, color: '#BBDEFB' },
+        { threshold: 5, color: '#90CAF9' },
+        { threshold: 10, color: '#64B5F6' },
+        { threshold: 20, color: '#2196F3' }
+      ];
     }
     // Default single color
     return [{ threshold: this.min, color: this.color }];
