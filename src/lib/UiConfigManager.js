@@ -1,9 +1,10 @@
-import { UnitConfig, UnitPresets } from './UnitConfig.js';
-import {translations} from "./i18n/translations.js";
+import { Units, UnitPresets } from '../config/units.js';
+import {translations} from "../i18n/translations.js";
 
 class UiConfigManager {
   constructor() {
     // Units
+    this.presetName = 'metric';
     this.units = { ...UnitPresets.metric };
     
     // Language
@@ -13,6 +14,7 @@ class UiConfigManager {
     // Time
     this.timezone = 'UTC';
     this.dateFormat = 'DD/MM/YYYY';
+    this.timeFormat = 24;
     
     // Subscribers
     this.listeners = [];
@@ -66,20 +68,22 @@ class UiConfigManager {
   }
 
   setPreset(presetName) {
-    if (UnitPresets[presetName]) {
-      this.units = { ...UnitPresets[presetName] };
-      this.saveToStorage();
-      this.notifyListeners();
-    }
+    this.presetName = presetName;
+    this.saveToStorage();
+    this.notifyListeners();
+  }
+
+  getPresetName() {
+    return this.presetName;
   }
 
   getUnit(type) {
-    return this.units[type];
+    return this.units[type] || Object.keys(Units[type])[0];
   }
 
   convert(value, type, targetUnit = null) {
-    const unit = targetUnit || this.units[type];
-    const config = UnitConfig[type]?.[unit];
+    const unit = targetUnit || this.getUnit(type);
+    const config = Units[type]?.[unit];
     
     if (!config) {
       console.warn(`Unknown unit: ${type}.${unit}`);
@@ -90,8 +94,8 @@ class UiConfigManager {
   }
 
   getUnitLabel(type) {
-    const unit = this.units[type];
-    return UnitConfig[type]?.[unit]?.label || '';
+    const unit = this.getUnit(type);
+    return Units[type]?.[unit]?.label || '';
   }
 
   // ============ TIME ============
@@ -114,6 +118,16 @@ class UiConfigManager {
 
   getDateFormat() {
     return this.dateFormat;
+  }
+
+  setTimeFormat(format) {
+    this.timeFormat = format;
+    this.saveToStorage();
+    this.notifyListeners();
+  }
+
+  getTimeFormat() {
+    return this.timeFormat;
   }
 
   // ============ STORAGE & SUBSCRIBERS ============
@@ -140,6 +154,8 @@ class UiConfigManager {
       units: this.units,
       timezone: this.timezone,
       dateFormat: this.dateFormat,
+      timeFormat: this.timeFormat,
+      presetName: this.presetName,
     };
     localStorage.setItem('uiConfig', JSON.stringify(config));
   }
@@ -148,20 +164,21 @@ class UiConfigManager {
     const config = this.getStoredConfig();
     
     if (!config) return;
-    
-    // Load units
+
     if (config.units) {
       this.units = config.units;
     }
-    
-    // Load timezone
+
     if (config.timezone) {
       this.timezone = config.timezone;
     }
-    
-    // Load date format
+
     if (config.dateFormat) {
       this.dateFormat = config.dateFormat;
+    }
+
+    if (config.timeFormat) {
+      this.timeFormat = config.timeFormat;
     }
   }
 }

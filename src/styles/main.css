@@ -1,12 +1,1 @@
-@import "./variables.css";
-@import "./base.css";
-@import "./header.css";
-@import "./footer.css";
-@import "./breadcrumb.css";
-@import "./offcanvas.css";
-@import "./ui-config.css";
-@import "./home-view.css";
-@import "./station-view.css";
-@import "./history-view.css";
-@import "./tabs.css";
-@import "./icon.css";
+@import "base.css";

@@ -1,25 +1,22 @@
 import './styles/main.css';
 import { appConfig } from './lib/AppConfig.js';
 import {router} from './lib/Router.js';
-import {renderHomeView} from './lib/views/HomeView.js';
-import {renderStationView} from './lib/views/StationView.js';
-import {renderHistoryView} from './lib/views/HistoryView.js';
-import {OffCanvasManager} from "./lib/components/OffCanvasManager.js";
-import {UiConfig} from "./lib/components/UiConfig.js";
 import {uiConfigManager} from "./lib/UiConfigManager.js";
+import {renderStationListView} from "./views/StationListView.js";
+import {renderStationDetailView} from "./views/StationDetailView.js";
+import {renderStationHistoryView} from "./views/StationHistoryView.js";
+import {renderWidgetShowcaseView} from "./views/WidgetShowcaseView.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     appConfig.init();
-
-    new OffCanvasManager();
-    new UiConfig('ui-config');
 });
 
 // Define routes
 router
-    .on('/', renderHomeView)
-    .on('/station/:id', renderStationView)
-    .on('/station/:id/history', renderHistoryView)
+    .on('/', renderStationListView)
+    .on('/station/:id', renderStationDetailView)
+    .on('/station/:id/history', renderStationHistoryView)
+    .on('/widgets', renderWidgetShowcaseView)
     .notFound(() => {
         document.getElementById('app').innerHTML = `
       <div class="not-found">
@@ -29,9 +26,25 @@ router
     `;
     });
 
+let pendingReRender = false;
 uiConfigManager.subscribe(() => {
+    const settingsOffCanvas = document.querySelector('wm-settings-offcanvas');
+
+    if (settingsOffCanvas) {
+        const offCanvas = settingsOffCanvas.shadowRoot?.querySelector('wm-offcanvas');
+
+        if (offCanvas && offCanvas.isOpen) {
+            pendingReRender = true;
+            return;
+        }
+    }
+
     router.handleRoute();
 })
 
-// Initialize app
-console.log('WeatherMaestro UI initialized');
+document.addEventListener('offcanvas-closed', () => {
+    if (pendingReRender) {
+        router.handleRoute();
+        pendingReRender = false;
+    }
+})
