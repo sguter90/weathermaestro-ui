@@ -2,6 +2,7 @@ import {appConfig} from './AppConfig.js';
 import {StationData} from '../model/StationData.js';
 import {SensorData} from '../model/SensorData.js';
 import {ReadingData} from '../model/ReadingData.js';
+import {DashboardData} from "../model/DashboardData.js";
 
 /**
  * API Client class for handling all API requests
@@ -42,10 +43,15 @@ class ApiClient {
             };
         }
         const response = await fetch(`${this.apiBaseUrl}${endpoint}`, options);
+        // Handle 204 No Content - no body to parse
+        if (response.status === 204) {
+            return null;
+        }
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({message: 'Unknown error'}));
             throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
+
         return response.json();
     }
 
@@ -223,6 +229,79 @@ class ApiClient {
         });
 
         return readingsResponse.data;
+    }
+
+    /**
+     * Get all dashboards
+     * @returns {Promise<DashboardData[]>} Array of dashboards
+     */
+    async getDashboards() {
+        const response = await this.callApi('/dashboards');
+        return response.map(item => new DashboardData(item));
+    }
+
+    /**
+     * Get single dashboard by ID
+     * @param {string} dashboardId Dashboard UUID
+     * @returns {Promise<DashboardData>} Dashboard data
+     */
+    async getDashboard(dashboardId) {
+        const response = await this.callApi(`/dashboards/${dashboardId}`);
+        return new DashboardData(response);
+    }
+
+    /**
+     * Create new dashboard (requires auth)
+     * @param {DashboardData|object} dashboard Dashboard data
+     * @returns {Promise<DashboardData>} Created dashboard
+     */
+    async createDashboard(dashboard) {
+        const data = dashboard instanceof DashboardData
+            ? dashboard.toApiFormat()
+            : dashboard;
+
+        const response = await this.callApi('/dashboards', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        return new DashboardData(response);
+    }
+
+    /**
+     * Update existing dashboard (requires auth)
+     * @param {string} dashboardId Dashboard UUID
+     * @param {DashboardData|object} dashboard Dashboard data
+     * @returns {Promise<DashboardData>} Updated dashboard
+     */
+    async updateDashboard(dashboardId, dashboard) {
+        const data = dashboard instanceof DashboardData
+            ? dashboard.toApiFormat()
+            : dashboard;
+
+        const response = await this.callApi(`/dashboards/${dashboardId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        return new DashboardData(response);
+    }
+
+    /**
+     * Delete dashboard (requires auth)
+     * @param {string} dashboardId Dashboard UUID
+     * @returns {Promise<void>}
+     */
+    async deleteDashboard(dashboardId) {
+        await this.callApi(`/dashboards/${dashboardId}`, {
+            method: 'DELETE'
+        });
     }
 }
 

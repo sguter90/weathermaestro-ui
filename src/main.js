@@ -8,6 +8,8 @@ import {renderStationHistoryView} from "./views/StationHistoryView.js";
 import {renderWidgetShowcaseView} from "./views/WidgetShowcaseView.js";
 import {renderLoginView} from "./views/LoginView.js";
 import {renderLogoutView} from "./views/LogoutView.js";
+import {renderDashboardListView} from "./views/DashboardListView.js";
+import {renderDashboardDetailView} from "./views/DashboardDetailView.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     appConfig.init();
@@ -18,6 +20,8 @@ router
     .on('/', renderStationListView)
     .on('/station/:id', renderStationDetailView)
     .on('/station/:id/history', renderStationHistoryView)
+    .on('/dashboard', renderDashboardListView)
+    .on('/dashboard/:id', renderDashboardDetailView)
     .on('/widgets', renderWidgetShowcaseView)
     .on('/login', renderLoginView)
     .on('/logout', renderLogoutView)
