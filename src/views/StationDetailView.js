@@ -154,7 +154,6 @@ export async function renderStationDetailView(params) {
 
             // Render widgets for each sensor
             sortedSensors.forEach(sensor => {
-                console.log(sensor.name, sensor.location, sensor.sensorType)
                 const widget = metricReader.createComponent(sensor);
                 if (widget) {
                     sensorsGrid.appendChild(widget);

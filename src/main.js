@@ -6,6 +6,8 @@ import {renderStationListView} from "./views/StationListView.js";
 import {renderStationDetailView} from "./views/StationDetailView.js";
 import {renderStationHistoryView} from "./views/StationHistoryView.js";
 import {renderWidgetShowcaseView} from "./views/WidgetShowcaseView.js";
+import {renderLoginView} from "./views/LoginView.js";
+import {renderLogoutView} from "./views/LogoutView.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     appConfig.init();
@@ -17,6 +19,8 @@ router
     .on('/station/:id', renderStationDetailView)
     .on('/station/:id/history', renderStationHistoryView)
     .on('/widgets', renderWidgetShowcaseView)
+    .on('/login', renderLoginView)
+    .on('/logout', renderLogoutView)
     .notFound(() => {
         document.getElementById('app').innerHTML = `
       <div class="not-found">

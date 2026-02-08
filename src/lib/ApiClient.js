@@ -11,10 +11,19 @@ class ApiClient {
         this.baseUrl = appConfig.getConfig('API_BASE_URL');
         this.apiVersion = '/api/v1';
         this.apiBaseUrl = `${this.baseUrl}${this.apiVersion}`;
+        this.authManager = null; // Will be set later to avoid circular dependency
 
         if (!this.baseUrl) {
             console.error("API_BASE_URL is not configured. Please set VITE_API_BASE_URL in .env or API_BASE_URL environment variable for Docker.");
         }
+    }
+
+    /**
+     * Set auth manager reference (called from AuthManager)
+     * @param {AuthManager} authManager
+     */
+    setAuthManager(authManager) {
+        this.authManager = authManager;
     }
 
     /**
@@ -25,12 +34,68 @@ class ApiClient {
      * @throws {Error} If the request fails
      */
     async callApi(endpoint, options = {}) {
+        // Automatically add Authorization header if token is available
+        if (this.authManager && this.authManager.token) {
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${this.authManager.token}`
+            };
+        }
         const response = await fetch(`${this.apiBaseUrl}${endpoint}`, options);
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({message: 'Unknown error'}));
             throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
         return response.json();
+    }
+
+    /**
+     * Login with username and password
+     * @param {string} username
+     * @param {string} password
+     * @returns {Promise<object>} Login response with token and user data
+     */
+    async login(username, password) {
+        return this.callApi('/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+    }
+
+    /**
+     * Logout current user
+     * @param {string} token Authorization token
+     * @returns {Promise<object>}
+     */
+    async logout(token) {
+        return this.callApi('/auth/logout', {
+            method: 'POST',
+        });
+    }
+
+    /**
+     * Refresh access token
+     * @returns {Promise<object>} New token data
+     */
+    async refreshToken() {
+        return this.callApi('/auth/refresh', {
+            method: 'POST',
+        });
+    }
+
+    /**
+     * Get current user info
+     * @returns {Promise<object>} User data
+     */
+    async getUserInfo() {
+        return this.callApi('/auth/me', {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
     }
 
     /**

@@ -19,6 +19,12 @@ export const de = {
     LAST_UPDATE: 'Letzte Aktualisierung',
     TOTAL_SUM: 'Summe',
 
+    USERNAME: 'Benutzername',
+    PASSWORD: 'Passwort',
+    LOGIN: 'Anmelden',
+    ERROR_LOGIN_FAILED: 'Anmeldung fehlgeschlagen',
+    ERROR_USERNAME_AND_PASSWORD_REQUIRED: 'Benutzername und Passwort sind erforderlich',
+
     UNIT_TYPE_TEMPERATURE: 'Temperatur',
     UNIT_TYPE_WINDSPEED: 'Windgeschwindigkeit',
     UNIT_TYPE_PRESSURE: 'Luftdruck',
