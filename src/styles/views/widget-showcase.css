@@ -1,0 +1,172 @@
+
+.widgets-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+    .widgets-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1280px) {
+    .widgets-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Widget Card Container */
+.widget-card-container {
+    background-color: #1e293b;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid #334155;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.widget-card-container:hover {
+    border-color: #475569;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+/* Widget Header */
+.widget-card-container > div:first-child {
+    background-color: #475569;
+    padding: 1rem;
+    border-bottom: 1px solid #334155;
+}
+
+.widget-card-container h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+}
+
+.widget-card-container p {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+}
+
+/* Preview Section */
+.preview-section {
+    background-color: #0f172a;
+    padding: 1rem;
+    min-height: 16rem;
+    border-bottom: 1px solid #334155;
+    overflow: auto;
+}
+
+/* Properties Section */
+.properties-section {
+    padding: 1rem;
+    max-height: 24rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.properties-section::-webkit-scrollbar {
+    width: 6px;
+}
+
+.properties-section::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.properties-section::-webkit-scrollbar-thumb {
+    background-color: #475569;
+    border-radius: 3px;
+}
+
+.properties-section::-webkit-scrollbar-thumb:hover {
+    background-color: #64748b;
+}
+
+/* Property Input Group */
+.property-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.property-input-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #cbd5e1;
+    margin-bottom: 0.25rem;
+}
+
+/* Property Input */
+.property-input {
+    width: 100%;
+    padding: 0.375rem 0.5rem;
+    background-color: #334155;
+    border: 1px solid #475569;
+    border-radius: 0.375rem;
+    color: white;
+    font-size: 0.875rem;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.property-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background-color: #1e293b;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.property-input:hover {
+    border-color: #64748b;
+}
+
+.property-input[type="color"] {
+    height: 2.5rem;
+    cursor: pointer;
+    padding: 0.25rem;
+}
+
+/* Reset Button */
+.reset-button {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.5rem 0.75rem;
+    background-color: #475569;
+    color: white;
+    border-radius: 0.5rem;
+    border: none;
+    transition: background-color 0.2s ease;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.reset-button:hover {
+    background-color: #64748b;
+}
+
+.reset-button:active {
+    background-color: #334155;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .widget-card-container {
+        max-height: 100%;
+    }
+
+    .preview-section {
+        min-height: 12rem;
+    }
+
+    .properties-section {
+        max-height: 20rem;
+    }
+}

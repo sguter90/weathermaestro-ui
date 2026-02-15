@@ -1,0 +1,57 @@
+
+/* Button Styles */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #2563eb;
+}
+
+.btn-primary:disabled {
+    background-color: #64748b;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: rgba(51, 65, 85, 0.5);
+    color: #94a3b8;
+    border: 1px solid #475569;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(71, 85, 105, 0.5);
+    color: white;
+}
+
+.btn-secondary.delete {
+    background-color: rgba(239, 68, 68, 0.8);
+    color: #ffffff;
+    border-color: #ef4444;
+}
+
+.btn-secondary.delete:hover {
+    background-color: rgba(239, 68, 68, 1);
+}

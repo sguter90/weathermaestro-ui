@@ -1,0 +1,195 @@
+.header {
+  background-color: rgba(30, 41, 59, 0.5);
+  border-bottom: 1px solid #475569;
+  backdrop-filter: blur(4px);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.header-container {
+  max-width: 80rem; /* 7xl */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .header-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .header-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* Logo Section */
+.header-logo-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.header-logo {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.25);
+}
+
+.header-logo a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.header-logo svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: white;
+}
+
+.header-title-section {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .header-title-section {
+    display: block;
+  }
+}
+
+.header-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .header-title {
+    font-size: 1.5rem;
+  }
+}
+
+.header-title a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.header-description {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .header-description {
+    font-size: 0.875rem;
+  }
+}
+
+/* Navigation */
+.header-nav {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.header-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.nav-tab:hover {
+  color: white;
+  background-color: rgba(71, 85, 105, 0.3);
+}
+
+.nav-tab.active {
+  color: white;
+  background-color: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.nav-tab svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.nav-tab span {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .nav-tab span {
+    display: inline;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-nav {
+    flex: 0 1 auto;
+  }
+}
+
+/* Settings Button */
+.header-settings-btn {
+  padding: 0.625rem;
+  background-color: #475569;
+  color: #cbd5e1;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-settings-btn:hover {
+  background-color: #64748b;
+}
+
+.header-settings-btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}

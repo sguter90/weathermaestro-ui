@@ -1,0 +1,25 @@
+.body-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+/* Scrollbar styling für Chrome/Safari */
+.body-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.body-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.body-wrapper::-webkit-scrollbar-thumb {
+  background: #64748b;
+  border-radius: 4px;
+}
+
+.body-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}

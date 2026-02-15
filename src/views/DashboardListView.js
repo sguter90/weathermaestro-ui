@@ -8,19 +8,12 @@ import {DashboardListItem} from "../components/DashboardListItem.js";
  * Render summary card
  */
 const renderSummaryCard = function (label, value, color) {
-    const colorClasses = {
-        blue: 'from-blue-500 to-cyan-500',
-        emerald: 'from-emerald-500 to-teal-500',
-        amber: 'from-amber-500 to-orange-500',
-        purple: 'from-purple-500 to-pink-500'
-    };
-
     return `
-        <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-5 text-center">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${colorClasses[color]} mx-auto mb-3 flex items-center justify-center shadow-lg">
-                <span class="text-2xl font-bold text-white">${value}</span>
+        <div class="summary-card summary-card--${color}">
+            <div class="summary-card__icon">
+                <span class="summary-card__value">${value}</span>
             </div>
-            <p class="text-sm text-slate-400">${label}</p>
+            <p class="summary-card__label">${label}</p>
         </div>
     `;
 }
@@ -36,7 +29,7 @@ export async function renderDashboardListView() {
         const isAuthenticated = authManager.isAuthenticated();
 
         const container = document.createElement('div');
-        container.className = 'space-y-6';
+        container.className = 'page-container';
 
         // Calculate stats
         const totalSections = dashboards.reduce((sum, d) => sum + d.getSections().length, 0);
@@ -45,26 +38,28 @@ export async function renderDashboardListView() {
 
         container.innerHTML = `
             <!-- Header -->
-            <div class="mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div class="page-header">
                 <div>
-                    <h2 class="text-2xl font-bold text-white mb-2">${i18n.t('DASHBOARDS') || 'Dashboards'}</h2>
-                    <p class="text-sm text-slate-400">${i18n.t('DASHBOARDS_DESCRIPTION') || 'Manage your custom dashboards'}</p>
+                    <h1>${i18n.t('DASHBOARDS') || 'Dashboards'}</h1>
+                    <p>${i18n.t('DASHBOARDS_DESCRIPTION') || 'Manage your custom dashboards'}</p>
                 </div>
                 ${isAuthenticated ? `
-                    <button id="create-dashboard-btn" class="btn-primary flex items-center gap-2 self-start">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
-                        <span>${i18n.t('NEW_DASHBOARD') || 'New Dashboard'}</span>
-                    </button>
+                    <div class="page-actions">
+                        <button id="create-dashboard-btn" class="btn-primary">
+                            <svg class="icon-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            <span>${i18n.t('NEW_DASHBOARD') || 'New Dashboard'}</span>
+                        </button>
+                    </div>
                 ` : ''}
             </div>
             
             <!-- Dashboards List -->
-            <div class="dashboard-list space-y-3"></div>
+            <div class="dashboard-list list-rows"></div>
             
             <!-- Summary Stats -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-8">
+            <div class="summary-stats">
                 ${renderSummaryCard(i18n.t('TOTAL_SUM') || 'Total', dashboards.length, 'blue')}
                 ${renderSummaryCard(i18n.t('SECTIONS') || 'Sections', totalSections, 'emerald')}
                 ${renderSummaryCard(i18n.t('WIDGETS') || 'Widgets', totalWidgets, 'amber')}
@@ -76,17 +71,13 @@ export async function renderDashboardListView() {
         if (dashboards.length === 0) {
             // Empty state
             const emptyState = document.createElement('div');
-            emptyState.className = 'bg-slate-800/50 border border-slate-700 rounded-2xl p-12 text-center';
+            emptyState.className = 'empty-state';
             emptyState.innerHTML = `
-                <svg class="w-16 h-16 mx-auto text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 0v10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2z"/>
                 </svg>
-                <h3 class="text-lg font-semibold text-slate-300 mb-2">
-                    ${i18n.t('NO_DASHBOARDS') || 'No Dashboards Yet'}
-                </h3>
-                <p class="text-sm text-slate-400 mb-4">
-                    ${i18n.t('NO_DASHBOARDS_DESCRIPTION') || 'Create your first dashboard to get started'}
-                </p>
+                <h3>${i18n.t('NO_DASHBOARDS') || 'No Dashboards Yet'}</h3>
+                <p>${i18n.t('NO_DASHBOARDS_DESCRIPTION') || 'Create your first dashboard to get started'}</p>
             `;
             dashboardListElement.appendChild(emptyState);
         } else {
@@ -129,52 +120,54 @@ export async function renderDashboardListView() {
  */
 async function showCreateDashboardDialog() {
     const dialog = document.createElement('div');
-    dialog.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4';
+    dialog.className = 'dialog-overlay';
 
     const form = document.createElement('form');
-    form.className = 'bg-slate-800/95 border border-slate-700 rounded-2xl p-6 max-w-md w-full space-y-4';
+    form.className = 'dialog-form';
     form.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold text-white">
+        <div class="dialog-header">
+            <h2 class="dialog-title">
                 ${i18n.t('CREATE_DASHBOARD') || 'Create Dashboard'}
             </h2>
-            <button type="button" class="close-btn text-slate-400 hover:text-white">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" class="close-btn">
+                <svg class="icon-large" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
         
-        <div>
-            <label class="block text-sm font-medium text-slate-300 mb-2">
-                ${i18n.t('DASHBOARD_NAME') || 'Name'} <span class="text-red-400">*</span>
-            </label>
-            <input 
-                type="text" 
-                name="name" 
-                required
-                class="w-full px-4 py-2 bg-slate-900/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="${i18n.t('DASHBOARD_NAME_PLACEHOLDER') || 'My Dashboard'}"
-            />
+        <div class="dialog-body">
+            <div class="form-group">
+                <label class="form-label">
+                    ${i18n.t('DASHBOARD_NAME') || 'Name'} *
+                </label>
+                <input 
+                    type="text" 
+                    name="name" 
+                    required
+                    class="form-input"
+                    placeholder="${i18n.t('DASHBOARD_NAME_PLACEHOLDER') || 'My Dashboard'}"
+                />
+            </div>
+        
+            <div class="form-group">
+                <label class="form-label">
+                    ${i18n.t('DASHBOARD_DESCRIPTION') || 'Description'}
+                </label>
+                <textarea 
+                    name="description" 
+                    rows="3"
+                    class="form-input"
+                    placeholder="${i18n.t('DASHBOARD_DESCRIPTION_PLACEHOLDER') || 'Optional description...'}"
+                ></textarea>
+            </div>
         </div>
         
-        <div>
-            <label class="block text-sm font-medium text-slate-300 mb-2">
-                ${i18n.t('DASHBOARD_DESCRIPTION') || 'Description'}
-            </label>
-            <textarea 
-                name="description" 
-                rows="3"
-                class="w-full px-4 py-2 bg-slate-900/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                placeholder="${i18n.t('DASHBOARD_DESCRIPTION_PLACEHOLDER') || 'Optional description...'}"
-            ></textarea>
-        </div>
-        
-        <div class="flex gap-3 pt-4">
-            <button type="button" class="cancel-btn btn-secondary flex-1">
+        <div class="dialog-form-actions">
+            <button type="button" class="cancel-btn btn-secondary">
                 ${i18n.t('CANCEL') || 'Cancel'}
             </button>
-            <button type="submit" class="btn-primary flex-1">
+            <button type="submit" class="btn-primary">
                 ${i18n.t('CREATE') || 'Create'}
             </button>
         </div>
@@ -203,12 +196,7 @@ async function showCreateDashboardDialog() {
         try {
             const submitBtn = form.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = `
-                <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-            `;
+            submitBtn.textContent = i18n.t('ADDING') || 'Adding...';
 
             const dashboard = await apiClient.createDashboard({
                 name,
@@ -242,51 +230,53 @@ async function showCreateDashboardDialog() {
  */
 async function showEditDashboardDialog(dashboard) {
     const dialog = document.createElement('div');
-    dialog.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4';
+    dialog.className = 'dialog-overlay';
 
     const form = document.createElement('form');
-    form.className = 'bg-slate-800/95 border border-slate-700 rounded-2xl p-6 max-w-md w-full space-y-4';
+    form.className = 'dialog-form';
     form.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold text-white">
+        <div class="dialog-header">
+            <h2 class="dialog-title">
                 ${i18n.t('EDIT_DASHBOARD') || 'Edit Dashboard'}
             </h2>
-            <button type="button" class="close-btn text-slate-400 hover:text-white">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" class="close-btn">
+                <svg class=icon-large" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
         
-        <div>
-            <label class="block text-sm font-medium text-slate-300 mb-2">
-                ${i18n.t('DASHBOARD_NAME') || 'Name'} <span class="text-red-400">*</span>
-            </label>
-            <input 
-                type="text" 
-                name="name" 
-                required
-                value="${dashboard.name}"
-                class="w-full px-4 py-2 bg-slate-900/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+        <div class="dialog-body">
+            <div class="form-group">
+                <label class="form-label">
+                    ${i18n.t('DASHBOARD_NAME') || 'Name'} <span class="text-red-400">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    name="name" 
+                    required
+                    value="${dashboard.name}"
+                    class="form-input"
+                />
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    ${i18n.t('DASHBOARD_DESCRIPTION') || 'Description'}
+                </label>
+                <textarea 
+                    name="description" 
+                    rows="3"
+                    class="form-input"
+                >${dashboard.description || ''}</textarea>
+            </div>
         </div>
         
-        <div>
-            <label class="block text-sm font-medium text-slate-300 mb-2">
-                ${i18n.t('DASHBOARD_DESCRIPTION') || 'Description'}
-            </label>
-            <textarea 
-                name="description" 
-                rows="3"
-                class="w-full px-4 py-2 bg-slate-900/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            >${dashboard.description || ''}</textarea>
-        </div>
-        
-        <div class="flex gap-3 pt-4">
-            <button type="button" class="cancel-btn btn-secondary flex-1">
+        <div class="dialog-form-actions">
+            <button type="button" class="cancel-btn btn-secondary">
                 ${i18n.t('CANCEL') || 'Cancel'}
             </button>
-            <button type="submit" class="btn-primary flex-1">
+            <button type="submit" class="btn-primary">
                 ${i18n.t('SAVE') || 'Save'}
             </button>
         </div>
@@ -315,12 +305,7 @@ async function showEditDashboardDialog(dashboard) {
         try {
             const submitBtn = form.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = `
-                <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-            `;
+            submitBtn.textContent = i18n.t('ADDING') || 'Adding...';
 
             await apiClient.updateDashboard(dashboard.id, {
                 name,
@@ -357,47 +342,44 @@ async function showEditDashboardDialog(dashboard) {
  */
 async function showDeleteDashboardDialog(dashboard) {
     const dialog = document.createElement('div');
-    dialog.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4';
+    dialog.className = 'dialog-overlay';
 
     const confirmDialog = document.createElement('div');
-    confirmDialog.className = 'bg-slate-800/95 border border-slate-700 rounded-2xl p-6 max-w-md w-full space-y-4';
+    confirmDialog.className = 'dialog-form';
     confirmDialog.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold text-white">
-                ${i18n.t('DELETE_DASHBOARD') || 'Delete Dashboard'}
+        <div class="dialog-header">
+            <h2 class="dialog-title">
+                ${i18n.t('DELETE') || 'Delete'}
             </h2>
-            <button type="button" class="close-btn text-slate-400 hover:text-white">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" class="close-btn">
+                <svg class="icon-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
         
-        <div class="space-y-3">
-            <div class="flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
-                <svg class="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="dialog-body">
+            <div class="dialog-warning">
+                <svg class="dialog-warning__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                 </svg>
-                <div>
-                    <p class="text-sm font-medium text-red-300">
+                <div class="dialog-warning__content">
+                    <p class="dialog-warning__title">
                         ${i18n.t('DELETE_DASHBOARD_WARNING') || 'This action cannot be undone'}
                     </p>
-                    <p class="text-sm text-red-400/80 mt-1">
+                    <p class="dialog-warning__description">
                         ${i18n.t('DELETE_DASHBOARD_DESCRIPTION') || 'All sections and widgets in this dashboard will be permanently deleted.'}
                     </p>
                 </div>
             </div>
-            
-            <p class="text-sm text-slate-300">
-                ${i18n.t('CONFIRM_DELETE_DASHBOARD', '', { name: dashboard.name }) || `Are you sure you want to delete "${dashboard.name}"?`}
-            </p>
+           
         </div>
         
-        <div class="flex gap-3 pt-4">
-            <button type="button" class="cancel-btn btn-secondary flex-1">
+        <div class="dialog-form-actions">
+            <button type="button" class="cancel-btn btn-secondary">
                 ${i18n.t('CANCEL') || 'Cancel'}
             </button>
-            <button type="button" class="delete-btn bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex-1">
+            <button type="button" class="delete-btn btn-secondary delete">
                 ${i18n.t('DELETE') || 'Delete'}
             </button>
         </div>
@@ -416,12 +398,7 @@ async function showDeleteDashboardDialog(dashboard) {
         try {
             const deleteBtn = confirmDialog.querySelector('.delete-btn');
             deleteBtn.disabled = true;
-            deleteBtn.innerHTML = `
-                <svg class="animate-spin h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-            `;
+            deleteBtn.textContent = i18n.t('DELETING') || 'Adding...';
 
             await apiClient.deleteDashboard(dashboard.id);
 

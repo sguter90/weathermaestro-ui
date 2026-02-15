@@ -110,19 +110,16 @@ export async function renderStationDetailView(params) {
         const metricReader = new MetricReader(station.sensors, station.latestData);
 
         const container = document.createElement('div');
-        container.className = 'space-y-6';
+        container.className = 'page-container';
 
         // Header Section
         container.innerHTML = `
-            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                <div class="min-w-0">
-                    <h1 class="text-2xl sm:text-3xl font-bold text-slate-100 break-words">${station.getDisplayName()}</h1>
+            <div class="page-header">
+                <div>
+                    <h1 class="page-header">${station.getDisplayName()}</h1>
+                    <p>${i18n.t('LAST_UPDATE') || 'Last Update'}: ${hasData ? dateFormatter.formatDateTime(new Date(station.latestData[0].dateUTC)) : 'N/A'}</p>
                 </div>
-                <div class="station-status-section text-right flex-shrink-0"></div>
-            </div>
-
-            <div class="text-sm text-slate-400">
-                ${i18n.t('LAST_UPDATE') || 'Last Update'}: ${hasData ? dateFormatter.formatDateTime(new Date(station.latestData[0].dateUTC)) : 'N/A'}
+                <div class="station-status-section page-actions"></div>
             </div>
         `;
 
@@ -140,17 +137,21 @@ export async function renderStationDetailView(params) {
 
             // Create section for location
             const section = document.createElement('div');
-            section.className = 'space-y-4';
+            section.className = 'dashboard-section';
 
             // Section header
-            const sectionHeader = document.createElement('h2');
-            sectionHeader.className = 'text-xl font-semibold text-slate-200';
-            sectionHeader.textContent = location;
-            section.appendChild(sectionHeader);
+            const header = document.createElement('div');
+            header.className = 'section-header';
+
+            const title = document.createElement('h2');
+            title.textContent = location;
+            header.appendChild(title);
+
+            section.appendChild(header);
 
             // Sensors grid
             const sensorsGrid = document.createElement('div');
-            sensorsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+            sensorsGrid.className = 'widgets-grid';
 
             // Render widgets for each sensor
             sortedSensors.forEach(sensor => {
@@ -169,7 +170,7 @@ export async function renderStationDetailView(params) {
 
             if (Object.keys(sensorsByCategory).length > 0) {
                 const groupsGrid = document.createElement('div');
-                groupsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+                groupsGrid.className = 'widgets-grid';
 
                 Object.values(sensorsByCategory).forEach(groupConfig => {
                     const groupWidget = new SensorGroup();

@@ -1,1 +1,14 @@
-@import "base.css";
+@import "./_base.css";
+@import "./_button.css";
+@import "./_dialog.css";
+@import "./_form.css";
+@import "./_icon.css";
+@import "./_layout.css";
+@import "./_summary.css";
+@import "./_widget.css";
+@import "./partials/body_wrapper.css";
+@import "./partials/content_wrapper.css";
+@import "./partials/footer.css";
+@import "./partials/header.css";
+@import "./views/dashboard-detail.css";
+@import "./views/widget-showcase.css";

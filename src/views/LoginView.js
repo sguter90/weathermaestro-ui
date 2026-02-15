@@ -14,7 +14,7 @@ export async function renderLoginView() {
     }
 
     const container = document.createElement('div');
-    container.className = 'min-h-screen flex items-center justify-center p-4';
+    container.className = 'login-container';
     
     const loginForm = new LoginForm();
     

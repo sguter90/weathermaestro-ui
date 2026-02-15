@@ -21,6 +21,7 @@ export const de = {
     CANCEL: 'Abbrechen',
     CREATE: 'Erstellen',
     DELETE: 'Löschen',
+    DELETING: 'Wird gelöscht...',
     ADD: 'Hinzufügen',
     ADDING: 'Wird hinzugefügt...',
     UPDATED: 'Aktualisiert',

@@ -1,4 +1,10 @@
 import './styles/main.css';
+import '@fontsource/space-grotesk/300.css';
+import '@fontsource/space-grotesk/400.css';
+import '@fontsource/space-grotesk/500.css';
+import '@fontsource/space-grotesk/600.css';
+import '@fontsource/space-grotesk/700.css';
+
 import { appConfig } from './lib/AppConfig.js';
 import {router} from './lib/Router.js';
 import {uiConfigManager} from "./lib/UiConfigManager.js";

@@ -1,5 +1,5 @@
 export function renderContentWrapper(wrapper, content) {
-    wrapper.className = 'flex-1 max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8';
+    wrapper.className = 'content-wrapper';
 
     if (typeof content === 'string') {
         wrapper.innerHTML = content;

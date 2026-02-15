@@ -1,0 +1,75 @@
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.summary-stats-4 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+@media (min-width: 640px) {
+    .summary-stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .summary-stats-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.summary-card {
+    background-color: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgb(51, 65, 85);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    text-align: center;
+}
+
+.summary-card__icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, var(--gradient-from), var(--gradient-to));
+    margin: 0 auto 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.summary-card__value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+}
+
+.summary-card__label {
+    font-size: 0.875rem;
+    color: rgb(148, 163, 184);
+}
+
+/* Gradient variations */
+.summary-card--blue {
+    --gradient-from: rgb(59, 130, 246);
+    --gradient-to: rgb(34, 211, 238);
+}
+
+.summary-card--emerald {
+    --gradient-from: rgb(16, 185, 129);
+    --gradient-to: rgb(20, 184, 166);
+}
+
+.summary-card--amber {
+    --gradient-from: rgb(245, 158, 11);
+    --gradient-to: rgb(249, 115, 22);
+}
+
+.summary-card--purple {
+    --gradient-from: rgb(168, 85, 247);
+    --gradient-to: rgb(236, 72, 153);
+}

@@ -26,49 +26,49 @@ export class WidgetShowcaseView {
 
     render() {
         this.container.innerHTML = `
-            <div class="widget-showcase-view min-h-screen bg-slate-900 p-6">
-                <div class="max-w-7xl mx-auto">
-                    <!-- Header -->
-                    <div class="mb-8">
-                        <h1 class="text-4xl font-bold text-white mb-2">Widget Showcase</h1>
-                        <p class="text-slate-400">Edit widget properties and see live preview</p>
-                    </div>
-
-                    <!-- Widgets Grid -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6" id="widgets-grid">
-                        ${Object.entries(this.widgetConfigs).map(([key, config]) => `
-                              <div class="widget-card-container bg-slate-800 rounded-lg overflow-hidden flex flex-col h-full" data-widget-type="${key}">
-                                <!-- Widget Header -->
-                                <div class="bg-slate-700 px-4 py-3 border-b border-slate-600">
-                                    <h3 class="text-lg font-semibold text-white">${config.name}</h3>
-                                    <p class="text-xs text-slate-400 mt-1">${key}</p>
-                                </div>
-
-                                <!-- Preview Section -->
-                                <div class="preview-section bg-slate-900 p-4 min-h-64 border-b border-slate-700">
-                                    <div id="widget-preview-${key}"></div>
-                                </div>
-
-                                <!-- Properties Section -->
-                                <div class="properties-section p-4 max-h-96 overflow-y-auto">
-                                    <div class="space-y-3" id="properties-${key}">
-                                        ${config.properties.map(prop => `
-                                            <div class="property-input-group">
-                                                <label class="block text-xs font-medium text-slate-300 mb-1">${prop.label}</label>
-                                                ${this.renderPropertyInput(key, prop)}
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                    
-                                    <button class="reset-button w-full mt-4 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors text-xs font-medium" 
-                                            data-widget-type="${key}">
-                                        Reset to Default
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('')}
+            <div class="page-container">
+                <!-- Header -->
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Widget Showcase</h1>
+                        <p>Edit widget properties and see live preview</p>
                     </div>
                 </div>
+
+                <!-- Widgets Grid -->
+                <div class="widgets-grid" id="widgets-grid">
+                    ${Object.entries(this.widgetConfigs).map(([key, config]) => `
+                          <div class="widget-card-container" data-widget-type="${key}">
+                            <!-- Widget Header -->
+                            <div>
+                                <h3>${config.name}</h3>
+                                <p>${key}</p>
+                            </div>
+
+                            <!-- Preview Section -->
+                            <div class="preview-section">
+                                <div id="widget-preview-${key}"></div>
+                            </div>
+
+                            <!-- Properties Section -->
+                            <div class="properties-section">
+                                <div class="space-y-3" id="properties-${key}">
+                                    ${config.properties.map(prop => `
+                                        <div class="property-input-group">
+                                            <label>${prop.label}</label>
+                                            ${this.renderPropertyInput(key, prop)}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                
+                                <button class="reset-button" 
+                                        data-widget-type="${key}">
+                                    Reset to Default
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div
             </div>
         `;
 

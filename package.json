@@ -12,6 +12,7 @@
     "vite": "^7.2.4"
   },
   "dependencies": {
+    "@fontsource/space-grotesk": "^5.2.10",
     "lit": "^3.3.2",
     "lit-html": "^3.3.2"
   }

@@ -2,7 +2,6 @@ import {viewManager} from "../lib/ViewManager.js";
 import {i18n} from "../i18n/i18n.js";
 import {apiClient} from "../lib/ApiClient.js";
 import {authManager} from "../lib/AuthManager.js";
-import {router} from "../lib/Router.js";
 import {MetricReader} from "../lib/MetricReader.js";
 import {SENSOR_TYPES} from "../config/sensor_types.js";
 
@@ -24,33 +23,33 @@ export async function renderDashboardDetailView(params) {
         }
 
         const container = document.createElement('div');
-        container.className = 'space-y-6';
+        container.className = 'page-container';
         container.dataset.dashboardId = dashboard.id;
 
         // Header Section
         const header = document.createElement('div');
-        header.className = 'flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4';
+        header.className = 'page-header';
         header.innerHTML = `
-            <div class="min-w-0">
-                <h1 class="text-2xl sm:text-3xl font-bold text-slate-100 break-words">${dashboard.name}</h1>
-                ${dashboard.description ? `<p class="text-sm text-slate-400 mt-1">${dashboard.description}</p>` : ''}
+            <div>
+                <h1>${dashboard.name}</h1>
+                ${dashboard.description ? `<p>${dashboard.description}</p>` : ''}
             </div>
         `;
 
         if (isAuthenticated) {
             const actions = document.createElement('div');
-            actions.className = 'flex gap-2 flex-shrink-0';
-            
+            actions.className = 'page-actions';
+
             const addSectionBtn = document.createElement('button');
-            addSectionBtn.className = 'btn-primary flex items-center gap-2';
+            addSectionBtn.className = 'btn-primary';
             addSectionBtn.innerHTML = `
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="icon-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
                 <span>${i18n.t('ADD_SECTION') || 'Add Section'}</span>
             `;
             addSectionBtn.onclick = () => showAddSectionDialog(dashboard);
-            
+
             actions.appendChild(addSectionBtn);
             header.appendChild(actions);
         }
@@ -59,20 +58,16 @@ export async function renderDashboardDetailView(params) {
 
         // Render sections
         const sections = dashboard.getSections();
-        
+
         if (sections.length === 0) {
             const emptyState = document.createElement('div');
-            emptyState.className = 'metric-card rounded-2xl p-12 text-center';
+            emptyState.className = 'empty-state';
             emptyState.innerHTML = `
-                <svg class="w-16 h-16 mx-auto text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 0v10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2z"/>
                 </svg>
-                <h3 class="text-lg font-semibold text-slate-300 mb-2">
-                    ${i18n.t('NO_SECTIONS') || 'No Sections Yet'}
-                </h3>
-                <p class="text-sm text-slate-400 mb-4">
-                    ${i18n.t('NO_SECTIONS_DESCRIPTION') || 'Add sections to organize your dashboard widgets'}
-                </p>
+                <h3>${i18n.t('NO_SECTIONS') || 'No Sections Yet'}</h3>
+                <p>${i18n.t('NO_SECTIONS_DESCRIPTION') || 'Add sections to organize your dashboard widgets'}</p>
             `;
             container.appendChild(emptyState);
         } else {
@@ -95,26 +90,25 @@ export async function renderDashboardDetailView(params) {
  */
 async function renderSection(section, dashboard, isAuthenticated) {
     const sectionElement = document.createElement('div');
-    sectionElement.className = 'space-y-4';
+    sectionElement.className = 'dashboard-section';
     sectionElement.dataset.sectionId = section.id;
 
     // Section header
     const header = document.createElement('div');
-    header.className = 'flex items-center justify-between';
+    header.className = 'section-header';
 
     const title = document.createElement('h2');
-    title.className = 'text-xl font-semibold text-white';
     title.textContent = section.name;
     header.appendChild(title);
 
     if (isAuthenticated) {
         const actions = document.createElement('div');
-        actions.className = 'flex gap-2';
+        actions.className = 'section-actions';
 
         const addWidgetBtn = document.createElement('button');
-        addWidgetBtn.className = 'btn-secondary text-sm flex items-center gap-2';
+        addWidgetBtn.className = 'btn-secondary';
         addWidgetBtn.innerHTML = `
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="icon-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
             <span>${i18n.t('ADD_WIDGET') || 'Add Widget'}</span>
@@ -122,18 +116,18 @@ async function renderSection(section, dashboard, isAuthenticated) {
         addWidgetBtn.onclick = () => showAddWidgetDialog(section, dashboard);
 
         const editSectionBtn = document.createElement('button');
-        editSectionBtn.className = 'btn-secondary text-sm';
+        editSectionBtn.className = 'btn-secondary';
         editSectionBtn.innerHTML = `
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="icon-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
             </svg>
         `;
         editSectionBtn.onclick = () => showEditSectionDialog(section, dashboard);
 
         const deleteSectionBtn = document.createElement('button');
-        deleteSectionBtn.className = 'btn-secondary text-sm text-red-400 hover:bg-red-500/20';
+        deleteSectionBtn.className = 'btn-secondary delete';
         deleteSectionBtn.innerHTML = `
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="icon-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
             </svg>
         `;
@@ -152,21 +146,17 @@ async function renderSection(section, dashboard, isAuthenticated) {
 
     if (widgets.length === 0) {
         const emptyState = document.createElement('div');
-        emptyState.className = 'metric-card rounded-2xl p-8 text-center';
+        emptyState.className = 'empty-state';
         emptyState.innerHTML = `
-            <p class="text-sm text-slate-400">
-                ${i18n.t('NO_WIDGETS_IN_SECTION') || 'No widgets in this section yet'}
-            </p>
-            ${isAuthenticated ? `
-                <button class="btn-secondary text-sm mt-3" onclick="document.querySelector('[data-section-id="${section.id}"] .btn-secondary').click()">
-                    ${i18n.t('ADD_WIDGET') || 'Add Widget'}
-                </button>
-            ` : ''}
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 0v10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2z"/>
+            </svg>
+            <p>${i18n.t('NO_WIDGETS_IN_SECTION') || 'No widgets in this section yet'}</p>
         `;
         sectionElement.appendChild(emptyState);
     } else {
         const widgetsGrid = document.createElement('div');
-        widgetsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+        widgetsGrid.className = 'widgets-grid';
 
         for (const widget of widgets) {
             try {
@@ -175,9 +165,9 @@ async function renderSection(section, dashboard, isAuthenticated) {
             } catch (error) {
                 console.error('Error rendering widget:', error);
                 const errorWidget = document.createElement('div');
-                errorWidget.className = 'metric-card rounded-2xl p-4 text-center';
+                errorWidget.className = 'empty-state';
                 errorWidget.innerHTML = `
-                    <p class="text-sm text-red-400">${i18n.t('ERROR_LOADING_WIDGET') || 'Error loading widget'}</p>
+                    <p style="color: #f87171;">${i18n.t('ERROR_LOADING_WIDGET') || 'Error loading widget'}</p>
                 `;
                 widgetsGrid.appendChild(errorWidget);
             }
@@ -194,7 +184,7 @@ async function renderSection(section, dashboard, isAuthenticated) {
  */
 async function renderWidget(widget, section, dashboard, isAuthenticated) {
     const widgetElement = document.createElement('div');
-    widgetElement.className = 'relative';
+    widgetElement.className = 'widget-container';
     widgetElement.dataset.widgetId = widget.id;
 
     try {
@@ -221,9 +211,9 @@ async function renderWidget(widget, section, dashboard, isAuthenticated) {
         // Add delete button for authenticated users
         if (isAuthenticated) {
             const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'absolute top-2 right-2 w-8 h-8 bg-slate-800/90 hover:bg-red-500/90 rounded-lg flex items-center justify-center transition-colors z-10';
+            deleteBtn.className = 'widget-delete-btn';
             deleteBtn.innerHTML = `
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="icon-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             `;
@@ -234,8 +224,8 @@ async function renderWidget(widget, section, dashboard, isAuthenticated) {
     } catch (error) {
         console.error('Error rendering widget:', error);
         widgetElement.innerHTML = `
-            <div class="metric-card rounded-2xl p-4 text-center">
-                <p class="text-sm text-red-400">${error.message}</p>
+            <div class="empty-state">
+                <p style="color: #f87171;">${error.message}</p>
             </div>
         `;
     }
@@ -248,40 +238,42 @@ async function renderWidget(widget, section, dashboard, isAuthenticated) {
  */
 async function showAddSectionDialog(dashboard) {
     const dialog = document.createElement('div');
-    dialog.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4';
+    dialog.className = 'dialog-overlay';
 
     const form = document.createElement('form');
-    form.className = 'metric-card rounded-2xl p-6 max-w-md w-full space-y-4';
+    form.className = 'dialog-form';
     form.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold text-white">
+        <div class="dialog-header">
+            <h2 class="dialog-title">
                 ${i18n.t('ADD_SECTION') || 'Add Section'}
             </h2>
-            <button type="button" class="close-btn text-slate-400 hover:text-white">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" class="close-btn">
+                <svg class="icon-large" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
         
-        <div>
-            <label class="block text-sm font-medium text-slate-300 mb-2">
-                ${i18n.t('SECTION_NAME') || 'Section Name'} <span class="text-red-400">*</span>
-            </label>
-            <input 
-                type="text" 
-                name="name" 
-                required
-                class="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="${i18n.t('SECTION_NAME_PLACEHOLDER') || 'e.g., Temperature Sensors'}"
-            />
+        <div class="dialog-body">
+            <div class="form-group">
+                <label class="form-label">
+                    ${i18n.t('SECTION_NAME') || 'Section Name'} *
+                </label>
+                <input 
+                    type="text" 
+                    name="name" 
+                    required
+                    class="form-input"
+                    placeholder="${i18n.t('SECTION_NAME_PLACEHOLDER') || 'e.g., Temperature Sensors'}"
+                />
+            </div>
         </div>
         
-        <div class="flex gap-3 pt-4">
-            <button type="button" class="cancel-btn btn-secondary flex-1">
+        <div class="dialog-form-actions">
+            <button type="button" class="cancel-btn btn-secondary">
                 ${i18n.t('CANCEL') || 'Cancel'}
             </button>
-            <button type="submit" class="btn-primary flex-1">
+            <button type="submit" class="btn-primary">
                 ${i18n.t('ADD') || 'Add'}
             </button>
         </div>
@@ -339,40 +331,42 @@ async function showAddSectionDialog(dashboard) {
  */
 async function showEditSectionDialog(section, dashboard) {
     const dialog = document.createElement('div');
-    dialog.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4';
+    dialog.className = 'dialog-overlay';
 
     const form = document.createElement('form');
-    form.className = 'metric-card rounded-2xl p-6 max-w-md w-full space-y-4';
+    form.className = 'dialog-form';
     form.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold text-white">
+        <div class="dialog-header">
+            <h2 class="dialog-title">
                 ${i18n.t('EDIT_SECTION') || 'Edit Section'}
             </h2>
-            <button type="button" class="close-btn text-slate-400 hover:text-white">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" class="close-btn">
+                <svg class="icon-large" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
         
-        <div>
-            <label class="block text-sm font-medium text-slate-300 mb-2">
-                ${i18n.t('SECTION_NAME') || 'Section Name'} <span class="text-red-400">*</span>
-            </label>
-            <input 
-                type="text" 
-                name="name" 
-                required
-                value="${section.name}"
-                class="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+        <div class="dialog-body">
+            <div class="form-group">
+                <label class="form-label">
+                    ${i18n.t('SECTION_NAME') || 'Section Name'} <span class="text-red-400">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    name="name" 
+                    required
+                    value="${section.name}"
+                    class="form-input"
+                />
+            </div>
         </div>
         
-        <div class="flex gap-3 pt-4">
-            <button type="button" class="cancel-btn btn-secondary flex-1">
+        <div class="dialog-form-actions">
+            <button type="button" class="cancel-btn btn-secondary">
                 ${i18n.t('CANCEL') || 'Cancel'}
             </button>
-            <button type="submit" class="btn-primary flex-1">
+            <button type="submit" class="btn-primary">
                 ${i18n.t('SAVE') || 'Save'}
             </button>
         </div>
@@ -458,54 +452,56 @@ async function deleteSection(section, dashboard) {
  */
 async function showAddWidgetDialog(section, dashboard) {
     const dialog = document.createElement('div');
-    dialog.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4';
+    dialog.className = 'dialog-overlay';
 
     const form = document.createElement('form');
-    form.className = 'metric-card rounded-2xl p-6 max-w-2xl w-full space-y-4 max-h-[90vh] overflow-y-auto';
+    form.className = 'dialog-form dialog-form-large';
     form.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold text-white">
+        <div class="dialog-header">
+            <h2 class="dialog-title">
                 ${i18n.t('ADD_WIDGET') || 'Add Widget'}
             </h2>
-            <button type="button" class="close-btn text-slate-400 hover:text-white">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" class="close-btn">
+                <svg class="icon-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
         </div>
         
-        <div>
-            <label class="block text-sm font-medium text-slate-300 mb-2">
-                ${i18n.t('SELECT_STATION') || 'Select Station'} <span class="text-red-400">*</span>
-            </label>
-            <select 
-                name="stationId" 
-                required
-                class="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-                <option value="">${i18n.t('SELECT_STATION_PLACEHOLDER') || 'Choose a station...'}</option>
-            </select>
+        <div class="dialog-body">
+            <div class="form-group">
+                <label class="form-label">
+                    ${i18n.t('SELECT_STATION') || 'Select Station'} <span class="text-red-400">*</span>
+                </label>
+                <select 
+                    name="stationId" 
+                    required
+                    class="form-input"
+                >
+                    <option value="">${i18n.t('SELECT_STATION_PLACEHOLDER') || 'Choose a station...'}</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    ${i18n.t('SELECT_SENSOR') || 'Select Sensor'} <span class="text-red-400">*</span>
+                </label>
+                <select 
+                    name="sensorId" 
+                    required
+                    disabled
+                    class="form-input"
+                >
+                    <option value="">${i18n.t('SELECT_SENSOR_PLACEHOLDER') || 'First select a station...'}</option>
+                </select>
+            </div>
         </div>
         
-        <div>
-            <label class="block text-sm font-medium text-slate-300 mb-2">
-                ${i18n.t('SELECT_SENSOR') || 'Select Sensor'} <span class="text-red-400">*</span>
-            </label>
-            <select 
-                name="sensorId" 
-                required
-                disabled
-                class="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-                <option value="">${i18n.t('SELECT_SENSOR_PLACEHOLDER') || 'First select a station...'}</option>
-            </select>
-        </div>
-        
-        <div class="flex gap-3 pt-4">
-            <button type="button" class="cancel-btn btn-secondary flex-1">
+        <div class="dialog-form-actions">
+            <button type="button" class="cancel-btn btn-secondary">
                 ${i18n.t('CANCEL') || 'Cancel'}
             </button>
-            <button type="submit" class="btn-primary flex-1">
+            <button type="submit" class="btn-primary">
                 ${i18n.t('ADD') || 'Add'}
             </button>
         </div>

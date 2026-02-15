@@ -1,0 +1,51 @@
+/* Widgets Grid */
+.widgets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .widgets-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .widgets-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Widget Container */
+.widget-container {
+    position: relative;
+}
+
+/* Widget delete button */
+.widget-delete-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 2rem;
+    height: 2rem;
+    background-color: rgba(30, 41, 59, 0.9);
+    border: none;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 10;
+}
+
+.widget-delete-btn:hover {
+    background-color: rgba(239, 68, 68, 0.9);
+}
+
+.widget-delete-btn svg {
+    width: 1rem;
+    height: 1rem;
+}
