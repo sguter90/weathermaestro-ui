@@ -190,7 +190,7 @@ export class SettingsOffCanvas extends LitElement {
                           d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
 
-                <span slot="title">Einstellungen</span>
+                <span slot="title">${i18n.t('SETTINGS')}</span>
 
                 <div slot="body">
                     <!-- Sprache & Region -->

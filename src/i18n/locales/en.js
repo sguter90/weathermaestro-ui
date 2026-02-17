@@ -1,4 +1,5 @@
 export const en = {
+    SETTINGS: 'Settings',
     FLAG: '🇺🇸',
     LANGUAGE: 'Language',
     LANG_DE: 'German',
