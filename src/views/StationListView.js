@@ -28,8 +28,10 @@ export async function renderStationListView() {
         container.innerHTML = `
             <!-- Header -->
             <div class="page-header">
-                <h1>${i18n.t('WEATHER_STATIONS') || 'Weather Stations'}</h1>
-                <p>${i18n.t('OVERVIEW_ALL_STATIONS') || 'Overview of all registered stations in the network'}</p>
+                <div>
+                    <h1>${i18n.t('WEATHER_STATIONS') || 'Weather Stations'}</h1>
+                    <p>${i18n.t('OVERVIEW_ALL_STATIONS') || 'Overview of all registered stations in the network'}</p>
+                </div>
             </div>
             
             <!-- Stations List -->
