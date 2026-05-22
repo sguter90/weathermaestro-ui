@@ -18,13 +18,13 @@ Built with [Lit](https://lit.dev/) web components and [Vite](https://vitejs.dev/
 - 📏 Flexible unit system (°C/°F, km/h/mph, hPa/inHg, etc.)
 - 📊 Create custom dashboards combining data from multiple weather stations
 - 🔐 Authentication with weather maestro backend
-- 📱 Mobile-friendly interface
+- 📱 Web App installation supported (PWA)
 - 🐳 Docker support for easy deployment
 
 ## Roadmap
 
 - [ ] Advanced data visualization and charts
-- [ ] PWA support
+
 ## Screenshots
 | Dashboard                                                                    | Station                                                                 | Settings                                                                  |
 |------------------------------------------------------------------------------|-------------------------------------------------------------------------|---------------------------------------------------------------------------|
