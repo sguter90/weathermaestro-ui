@@ -8,7 +8,7 @@ export class ReadingData {
             // Aggregated response format
             this.sensorId = data.sensor_id;
             this.dateUTC = data.dateutc ? new Date(data.dateutc) : null;
-            this.value = data.value;
+            this.value = typeof data.value === 'number' ? Math.round(data.value * 100) / 100 : data.value;
             this.count = data.count;
             this.minValue = data.min_value;
             this.maxValue = data.max_value;
@@ -17,7 +17,7 @@ export class ReadingData {
             // Standard response format
             this.id = data.id;
             this.sensorId = data.sensor_id;
-            this.value = data.value;
+            this.value = typeof data.value === 'number' ? Math.round(data.value * 100) / 100 : data.value;
             this.dateUTC = data.date_utc ? new Date(data.date_utc) : null;
             this.isAggregated = false;
         }

@@ -81,16 +81,16 @@ class UiConfigManager {
     return this.units[type] || Object.keys(Units[type])[0];
   }
 
-  convert(value, type, targetUnit = null) {
+  convert(value, type, targetUnit = null, decimals = 2) {
     const unit = targetUnit || this.getUnit(type);
     const config = Units[type]?.[unit];
-    
     if (!config) {
       console.warn(`Unknown unit: ${type}.${unit}`);
       return value;
     }
-    
-    return config.convert(value);
+
+    const converted = config.convert(value);
+    return typeof converted === 'number' ? Number(converted.toFixed(decimals)) : converted;
   }
 
   getUnitLabel(type) {
