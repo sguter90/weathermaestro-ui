@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-06-14
+
 ### Added
 
 - Space-saving mobile layout: metric widgets now display two per row on phones (mobile-first `.widgets-grid`), with compact widget sizing (fonts, padding, proportional SVG scaling) so all information still fits
