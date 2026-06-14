@@ -188,6 +188,16 @@ export class DashboardListItem extends MetricCard {
             .arrow-icon {
                 width: 1.5rem;
                 height: 1.5rem;
+                /*
+                 * Defense-in-depth (issue #6): pin min/max dimensions so that
+                 * even if a higher-specificity rule (e.g. a generic SVG rule
+                 * inside a parent component's mobile media query) tries to
+                 * resize this chevron, it stays at 1.5rem.
+                 */
+                min-width: 1.5rem;
+                min-height: 1.5rem;
+                max-width: 1.5rem;
+                max-height: 1.5rem;
                 color: rgb(148, 163, 184);
                 flex-shrink: 0;
                 margin-bottom: 0;

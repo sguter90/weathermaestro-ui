@@ -98,8 +98,13 @@ export class MetricCard extends LitElement {
                  * max-width and max-height: wide SVGs (gauges) are limited by
                  * width, tall/narrow SVGs (e.g. the thermometer, 80x140) are
                  * limited by height — which max-width alone could not shrink.
+                 *
+                 * IMPORTANT: exclude `.arrow-icon` (used in list-item chevrons).
+                 * Without this `:not(...)` guard, the rule's higher specificity
+                 * overrides the 1.5rem sizing on `.arrow-icon`, causing the
+                 * chevrons to inflate up to 100x110px on mobile (issue #6).
                  */
-                .metric-card svg {
+                .metric-card svg:not(.arrow-icon) {
                     max-width: 100px;
                     max-height: 110px;
                     width: auto;
