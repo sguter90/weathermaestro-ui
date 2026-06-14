@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-06-14
+
 ### Fixed
 
 - Pull-to-refresh now works reliably: the gesture was binding to the dynamically re-rendered `.body-wrapper` element, which did not exist at init time and was replaced on every route change. PTR now binds to the persistent `#app` container, looks up the scroll container dynamically at touch time, and uses a viewport-anchored (`position: fixed`) indicator.
+
+## [2.1.0] - 2026-06-14
 
 ### Added
 
