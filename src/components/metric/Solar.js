@@ -108,6 +108,13 @@ export class Solar extends MetricCard {
                     height: 120px;
                 }
 
+                /* The actual SVG element; shrink it on mobile so the card
+                   fits in a two-column layout. */
+                .solar-svg {
+                    width: 96px;
+                    height: 96px;
+                }
+
                 .solar-value {
                     font-size: 1.25rem;
                 }

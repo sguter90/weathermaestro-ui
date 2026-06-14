@@ -109,6 +109,22 @@ export class SensorGroup extends MetricCard {
             .sensor-value.updating {
                 animation: pulse-value 0.6s ease-in-out;
             }
+
+            /*
+             * Mobile (<= 640px): compact sensor-item internals.
+             * SensorGroups stay full width on mobile (their grid uses the
+             * "widgets-grid--groups" modifier, kept single-column), so these
+             * rules only tighten spacing/typography for readability.
+             */
+            @media (max-width: 640px) {
+                .sensor-item         { padding: 0.4rem 0.5rem; border-radius: 0.5rem; }
+                .sensor-label        { font-size: 0.7rem; }
+                .sensor-value        { font-size: 0.85rem; }
+                .sensor-group-icon   { width: 1.5rem; height: 1.5rem; }
+                .sensor-group-title  { font-size: 0.85rem; }
+                .sensor-group-header { margin-bottom: 0.6rem; }
+                .sensors-list        { gap: 0.4rem; }
+            }
         `
     ];
 

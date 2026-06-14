@@ -170,7 +170,9 @@ export async function renderStationDetailView(params) {
 
             if (Object.keys(sensorsByCategory).length > 0) {
                 const groupsGrid = document.createElement('div');
-                groupsGrid.className = 'widgets-grid';
+                // SensorGroups keep a single-column (full-width) layout on mobile,
+                // while the individual metric widgets above use two columns.
+                groupsGrid.className = 'widgets-grid widgets-grid--groups';
 
                 Object.values(sensorsByCategory).forEach(groupConfig => {
                     const groupWidget = new SensorGroup();

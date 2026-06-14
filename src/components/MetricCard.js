@@ -73,5 +73,31 @@ export class MetricCard extends LitElement {
             .text-sub {
                 font-size: 0.75rem;
             }
+
+            /*
+             * Mobile (<= 640px): compact sizing so two metric widgets fit
+             * side by side on phones. These rules apply to every component
+             * that inherits or spreads MetricCard.styles (all metric widgets do),
+             * because each lives in its own Shadow DOM and global CSS cannot
+             * reach inside.
+             */
+            @media (max-width: 640px) {
+                .metric-card    { padding: 0.6rem; border-radius: 0.75rem; }
+                .card-header    { margin: 0.35rem 0; }
+                .card-header h4 { font-size: 0.75rem; }
+                .metric-value   { font-size: 1.15rem; }
+                .metric-unit    { font-size: 0.7rem; }
+                .text-label     { font-size: 0.7rem; }
+                .text-sub       { font-size: 0.65rem; }
+                .metric-row     { gap: 0.15rem; margin-bottom: 0.25rem; }
+
+                /*
+                 * Generic SVG shrink. Every metric SVG defines a viewBox, so
+                 * constraining max-width with height:auto scales it down
+                 * proportionally without distortion. This covers all widgets
+                 * (including those without their own static styles block).
+                 */
+                .metric-card svg { max-width: 100px; height: auto; }
+            }
         `];
 }

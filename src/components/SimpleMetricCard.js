@@ -115,8 +115,28 @@ export class SimpleMetricCard extends MetricCard {
             }
 
             @media (max-width: 640px) {
+                .metric-icon-container {
+                    width: 2rem;
+                    height: 2rem;
+                    font-size: 1rem;
+                    border-radius: 0.5rem;
+                }
+
                 .metric-value {
-                    font-size: 1.5rem;
+                    font-size: 1.25rem;
+                }
+
+                .metric-header {
+                    margin-bottom: 0.5rem;
+                }
+
+                .metric-status {
+                    font-size: 0.65rem;
+                    padding: 0.15rem 0.35rem;
+                }
+
+                .metric-value-unit {
+                    font-size: 0.7rem;
                 }
 
                 .metric-label {
