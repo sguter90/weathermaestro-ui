@@ -146,7 +146,7 @@ export async function renderDashboardListView() {
 /**
  * Handle reload/refresh of the dashboard list view
  */
-async function handleReloadDashboards() {
+export async function handleReloadDashboards() {
     const reloadBtn = document.getElementById('reload-dashboards-btn');
     if (!reloadBtn) return;
 

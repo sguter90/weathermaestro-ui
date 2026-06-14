@@ -1,0 +1,40 @@
+.ptr-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  z-index: 100;
+  pointer-events: none;
+  /* No transition here — applied only during snap-back via .ptr-indicator--snap */
+}
+
+.ptr-indicator--snap {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.ptr-arrow {
+  font-size: 1.5rem;
+  color: #94a3b8;
+  transition: transform 0.3s ease;
+}
+.ptr-indicator--ready .ptr-arrow {
+  transform: rotate(180deg);
+  color: #3b82f6;
+}
+.ptr-spinner {
+  display: none;
+  width: 24px; height: 24px;
+  border: 2px solid #475569;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: ptr-spin 0.8s linear infinite;
+}
+.ptr-indicator--loading .ptr-spinner { display: block; }
+.ptr-indicator--loading .ptr-arrow   { display: none; }
+@keyframes ptr-spin {
+  to { transform: rotate(360deg); }
+}

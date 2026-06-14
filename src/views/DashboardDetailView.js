@@ -663,7 +663,7 @@ async function deleteWidget(widget, section, dashboard) {
 /**
  * Handle reload/refresh of the dashboard detail view
  */
-async function handleReloadDashboard(dashboard) {
+export async function handleReloadDashboard(dashboard) {
     const reloadBtn = document.getElementById('reload-dashboard-btn');
     if (!reloadBtn) return;
 

@@ -60,3 +60,11 @@ export async function renderStationListView() {
         viewManager.showError(error.message);
     }
 }
+
+/**
+ * Handle reload/refresh of the station list view.
+ * Used as the pull-to-refresh callback for the station list route.
+ */
+export async function handleReloadStations() {
+    return renderStationListView();
+}

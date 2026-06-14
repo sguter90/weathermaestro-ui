@@ -194,3 +194,12 @@ export async function renderStationDetailView(params) {
         viewManager.showError(error.message);
     }
 }
+
+/**
+ * Handle reload/refresh of the station detail view.
+ * Used as the pull-to-refresh callback for the station detail route.
+ * @param {Object} params - Route params containing the station id
+ */
+export async function handleReloadStation(params) {
+    return renderStationDetailView(params);
+}
