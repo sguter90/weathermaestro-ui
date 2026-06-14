@@ -1,10 +1,13 @@
 /**
  * PullToRefreshManager
  *
- * Central service that attaches a pull-to-refresh gesture to the
- * `.body-wrapper` scroll container.  Views register their reload
- * callback via `setReloadCallback()` on every route change, so the
- * manager always knows which function to call when the user pulls down.
+ * Central service that attaches a pull-to-refresh gesture to the persistent
+ * `#app` container (static in index.html, never replaced).  The inner
+ * `.body-wrapper` scroll container is rendered dynamically into `#app` on
+ * every route change, so it is looked up fresh at touch-start time instead
+ * of being cached.  Views register their reload callback via
+ * `setReloadCallback()` on every route change, so the manager always knows
+ * which function to call when the user pulls down.
  */
 class PullToRefreshManager {
     constructor() {
@@ -29,8 +32,11 @@ class PullToRefreshManager {
         /** @type {HTMLElement|null} The visual pull-to-refresh indicator element */
         this.indicator = null;
 
-        /** @type {HTMLElement|null} The scrollable container (.body-wrapper) */
-        this.scrollContainer = null;
+        /** @type {HTMLElement|null} The persistent #app container (touch target) */
+        this.appContainer = null;
+
+        /** @type {HTMLElement|null} The scroll container active for the current gesture */
+        this._activeScroll = null;
 
         /** Y-coordinate where the touch started */
         this._startY = 0;
@@ -44,35 +50,49 @@ class PullToRefreshManager {
     /**
      * Initialise the manager.
      * Must be called once after the DOM is ready.
-     * Attaches to `.body-wrapper`, creates the indicator and binds touch events.
+     * Attaches to the persistent `#app` container, creates the indicator and
+     * binds touch events.  The inner `.body-wrapper` scroll container is NOT
+     * cached here — it is looked up dynamically at touch time (see
+     * `_getScrollContainer`) because it is replaced on every view render.
      */
     init() {
-        // Guard against duplicate init() calls
-        if (this._initialized) return;
+        this.appContainer = document.getElementById('app');
 
-        this.scrollContainer = document.querySelector('.body-wrapper');
-
-        if (!this.scrollContainer) {
+        if (!this.appContainer) {
             // Early return — _initialized stays false so init() can be retried
             return;
         }
 
+        // Guard against duplicate init() calls (after a successful #app lookup)
+        if (this._initialized) return;
+
         // Only mark as initialized after successful DOM lookup
         this._initialized = true;
 
-        // Create and prepend the visual indicator
+        // Create and append the visual indicator to the persistent #app
+        // container so it survives view re-renders of .body-wrapper.
         this.indicator = document.createElement('div');
         this.indicator.className = 'ptr-indicator';
         this.indicator.innerHTML = `
             <div class="ptr-spinner"></div>
             <div class="ptr-arrow">↓</div>
         `;
-        this.scrollContainer.prepend(this.indicator);
+        this.appContainer.appendChild(this.indicator);
 
-        // Bind touch events
-        this.scrollContainer.addEventListener('touchstart', this._onTouchStart, { passive: true });
-        this.scrollContainer.addEventListener('touchmove', this._onTouchMove, { passive: false });
-        this.scrollContainer.addEventListener('touchend', this._onTouchEnd, { passive: true });
+        // Bind touch events to the persistent #app container
+        this.appContainer.addEventListener('touchstart', this._onTouchStart, { passive: true });
+        this.appContainer.addEventListener('touchmove', this._onTouchMove, { passive: false });
+        this.appContainer.addEventListener('touchend', this._onTouchEnd, { passive: true });
+    }
+
+    /**
+     * Look up the current `.body-wrapper` scroll container fresh.
+     * It is rendered dynamically into `#app` on every route change, so it must
+     * never be cached.
+     * @returns {HTMLElement|null}
+     */
+    _getScrollContainer() {
+        return document.querySelector('.body-wrapper');
     }
 
     /**
@@ -97,19 +117,23 @@ class PullToRefreshManager {
     // -------------------------------------------------------------------------
 
     _onTouchStart(e) {
-        // Only begin pulling when the container is scrolled to the very top
-        // and no refresh is currently in progress.
-        if (this.scrollContainer.scrollTop !== 0 || this.isRefreshing) {
+        // Look up the scroll container fresh — it is re-rendered on every view
+        // change, so it must never be cached.  Only begin pulling when it
+        // exists, is scrolled to the very top, and no refresh is in progress.
+        const sc = this._getScrollContainer();
+        if (!sc || sc.scrollTop !== 0 || this.isRefreshing) {
             return;
         }
 
+        // Store the active scroll container for the duration of this gesture.
+        this._activeScroll = sc;
         this._startY = e.touches[0].clientY;
         this._currentDelta = 0;
         this.isPulling = true;
     }
 
     _onTouchMove(e) {
-        if (!this.isPulling) return;
+        if (!this.isPulling || !this._activeScroll) return;
 
         const currentY = e.touches[0].clientY;
         const delta = currentY - this._startY;
@@ -117,14 +141,14 @@ class PullToRefreshManager {
         // Only prevent native scroll when actually pulling down from the top.
         // Calling preventDefault() unconditionally blocks downward scrolling
         // whenever scrollTop === 0, which prevents the user from scrolling at all.
-        if (delta > 0 && this.scrollContainer.scrollTop === 0) {
+        if (delta > 0 && this._activeScroll.scrollTop === 0) {
             e.preventDefault();
         }
 
         // Bug 1 fix: when delta <= 0 (finger moved up), just hide the indicator
         // and return early but do NOT set isPulling = false — the gesture is still
         // active and may resume downward at any moment.
-        if (delta <= 0 || this.scrollContainer.scrollTop !== 0) {
+        if (delta <= 0 || this._activeScroll.scrollTop !== 0) {
             this._currentDelta = 0;
             this.indicator.style.transform = '';
             this.indicator.style.opacity = '0';
@@ -165,6 +189,9 @@ class PullToRefreshManager {
         } else {
             this._resetIndicator();
         }
+
+        // Release the active scroll container — looked up fresh on next gesture.
+        this._activeScroll = null;
     }
 
     // -------------------------------------------------------------------------

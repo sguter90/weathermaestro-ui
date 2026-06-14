@@ -1,5 +1,5 @@
 .ptr-indicator {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -10,6 +10,10 @@
   opacity: 0;
   z-index: 100;
   pointer-events: none;
+  /* Hidden state: anchored to the viewport top, slid out of view.
+     Lives in the persistent #app container so it survives .body-wrapper
+     re-renders. */
+  transform: translateY(-100%);
   /* No transition here — applied only during snap-back via .ptr-indicator--snap */
 }
 
