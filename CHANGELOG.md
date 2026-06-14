@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.1] - 2026-06-14
+
 ### Fixed
 
 - List-item chevron (`.arrow-icon`) inflated to ~100px on mobile because the generic `.metric-card svg` mobile shrink rule overrode the explicit 1.5rem sizing via higher specificity. The rule now excludes `.arrow-icon` (`.metric-card svg:not(.arrow-icon)`), and `DashboardListItem` / `StationListItem` pin `.arrow-icon` to 1.5rem via `min-/max-width` / `min-/max-height` as defense-in-depth.
