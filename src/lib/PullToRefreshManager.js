@@ -111,14 +111,15 @@ class PullToRefreshManager {
     _onTouchMove(e) {
         if (!this.isPulling) return;
 
-        // Bug 2 fix: call preventDefault() at the top, before any early returns,
-        // to prevent the browser from committing a native scroll while pulling.
-        if (this.scrollContainer.scrollTop === 0) {
-            e.preventDefault();
-        }
-
         const currentY = e.touches[0].clientY;
         const delta = currentY - this._startY;
+
+        // Only prevent native scroll when actually pulling down from the top.
+        // Calling preventDefault() unconditionally blocks downward scrolling
+        // whenever scrollTop === 0, which prevents the user from scrolling at all.
+        if (delta > 0 && this.scrollContainer.scrollTop === 0) {
+            e.preventDefault();
+        }
 
         // Bug 1 fix: when delta <= 0 (finger moved up), just hide the indicator
         // and return early but do NOT set isPulling = false — the gesture is still
