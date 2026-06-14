@@ -93,11 +93,18 @@ export class MetricCard extends LitElement {
 
                 /*
                  * Generic SVG shrink. Every metric SVG defines a viewBox, so
-                 * constraining max-width with height:auto scales it down
-                 * proportionally without distortion. This covers all widgets
-                 * (including those without their own static styles block).
+                 * constraining the box and letting the other dimension be auto
+                 * scales it down proportionally without distortion. We cap BOTH
+                 * max-width and max-height: wide SVGs (gauges) are limited by
+                 * width, tall/narrow SVGs (e.g. the thermometer, 80x140) are
+                 * limited by height — which max-width alone could not shrink.
                  */
-                .metric-card svg { max-width: 100px; height: auto; }
+                .metric-card svg {
+                    max-width: 100px;
+                    max-height: 110px;
+                    width: auto;
+                    height: auto;
+                }
             }
         `];
 }
