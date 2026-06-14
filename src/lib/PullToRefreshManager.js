@@ -47,16 +47,18 @@ class PullToRefreshManager {
      * Attaches to `.body-wrapper`, creates the indicator and binds touch events.
      */
     init() {
-        // Bug 4 fix: guard against duplicate init() calls
+        // Guard against duplicate init() calls
         if (this._initialized) return;
-        this._initialized = true;
 
         this.scrollContainer = document.querySelector('.body-wrapper');
 
         if (!this.scrollContainer) {
-            console.warn('PullToRefreshManager: .body-wrapper not found, skipping init');
+            // Early return — _initialized stays false so init() can be retried
             return;
         }
+
+        // Only mark as initialized after successful DOM lookup
+        this._initialized = true;
 
         // Create and prepend the visual indicator
         this.indicator = document.createElement('div');
@@ -128,6 +130,9 @@ class PullToRefreshManager {
             this.indicator.classList.remove('ptr-indicator--ready');
             return;
         }
+
+        // No transition during live drag — remove snap class so updates are instant
+        this.indicator.classList.remove('ptr-indicator--snap');
 
         // Track current pull distance
         this._currentDelta = delta;
@@ -207,11 +212,20 @@ class PullToRefreshManager {
 
     /**
      * Animate the indicator back to its hidden position and remove all state classes.
+     * Adds .ptr-indicator--snap so the CSS transition is active only during snap-back,
+     * then removes it once the animation completes so drag updates remain instant.
      */
     _resetIndicator() {
+        // Enable transition for the snap-back animation
+        this.indicator.classList.add('ptr-indicator--snap');
         this.indicator.style.transform = '';
         this.indicator.style.opacity = '0';
         this.indicator.classList.remove('ptr-indicator--ready', 'ptr-indicator--loading');
+
+        // Remove the snap class after the transition finishes (200ms matches CSS duration)
+        setTimeout(() => {
+            this.indicator.classList.remove('ptr-indicator--snap');
+        }, 200);
     }
 }
 

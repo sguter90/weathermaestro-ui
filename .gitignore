@@ -25,3 +25,7 @@ dist-ssr
 *.sln
 *.sw?
 *.iml
+
+# Development scratch files
+index_new.html
+temp.html

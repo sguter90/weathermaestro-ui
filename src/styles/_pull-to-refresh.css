@@ -4,13 +4,16 @@
   left: 0;
   right: 0;
   height: 60px;
-  transform: translateY(-100%);
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
   z-index: 100;
   pointer-events: none;
+  /* No transition here — applied only during snap-back via .ptr-indicator--snap */
+}
+
+.ptr-indicator--snap {
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 .ptr-arrow {
