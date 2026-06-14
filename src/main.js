@@ -9,18 +9,14 @@ import { appConfig } from './lib/AppConfig.js';
 import {router} from './lib/Router.js';
 import {uiConfigManager} from "./lib/UiConfigManager.js";
 import {pullToRefreshManager} from "./lib/PullToRefreshManager.js";
-import {renderStationListView} from "./views/StationListView.js";
-import {handleReloadStations} from "./views/StationListView.js";
-import {renderStationDetailView} from "./views/StationDetailView.js";
-import {handleReloadStation} from "./views/StationDetailView.js";
+import {renderStationListView, handleReloadStations} from "./views/StationListView.js";
+import {renderStationDetailView, handleReloadStation} from "./views/StationDetailView.js";
 import {renderStationHistoryView} from "./views/StationHistoryView.js";
 import {renderWidgetShowcaseView} from "./views/WidgetShowcaseView.js";
 import {renderLoginView} from "./views/LoginView.js";
 import {renderLogoutView} from "./views/LogoutView.js";
-import {renderDashboardListView} from "./views/DashboardListView.js";
-import {handleReloadDashboards} from "./views/DashboardListView.js";
-import {renderDashboardDetailView} from "./views/DashboardDetailView.js";
-import {handleReloadDashboard} from "./views/DashboardDetailView.js";
+import {renderDashboardListView, handleReloadDashboards} from "./views/DashboardListView.js";
+import {renderDashboardDetailView, handleReloadDashboard} from "./views/DashboardDetailView.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     appConfig.init();

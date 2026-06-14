@@ -17,6 +17,12 @@ class PullToRefreshManager {
         this.isPulling = false;
         this.isRefreshing = false;
 
+        /** Current pull distance in px (tracked separately from isPulling) */
+        this._currentDelta = 0;
+
+        /** Guard to prevent duplicate init() calls */
+        this._initialized = false;
+
         /** @type {Function|null} Current reload callback set by the active view */
         this.reloadCallback = null;
 
@@ -41,6 +47,10 @@ class PullToRefreshManager {
      * Attaches to `.body-wrapper`, creates the indicator and binds touch events.
      */
     init() {
+        // Bug 4 fix: guard against duplicate init() calls
+        if (this._initialized) return;
+        this._initialized = true;
+
         this.scrollContainer = document.querySelector('.body-wrapper');
 
         if (!this.scrollContainer) {
@@ -92,23 +102,35 @@ class PullToRefreshManager {
         }
 
         this._startY = e.touches[0].clientY;
+        this._currentDelta = 0;
         this.isPulling = true;
     }
 
     _onTouchMove(e) {
         if (!this.isPulling) return;
 
+        // Bug 2 fix: call preventDefault() at the top, before any early returns,
+        // to prevent the browser from committing a native scroll while pulling.
+        if (this.scrollContainer.scrollTop === 0) {
+            e.preventDefault();
+        }
+
         const currentY = e.touches[0].clientY;
         const delta = currentY - this._startY;
 
-        // Only handle downward pulls while still at the top
+        // Bug 1 fix: when delta <= 0 (finger moved up), just hide the indicator
+        // and return early but do NOT set isPulling = false — the gesture is still
+        // active and may resume downward at any moment.
         if (delta <= 0 || this.scrollContainer.scrollTop !== 0) {
-            this._resetIndicator();
+            this._currentDelta = 0;
+            this.indicator.style.transform = '';
+            this.indicator.style.opacity = '0';
+            this.indicator.classList.remove('ptr-indicator--ready');
             return;
         }
 
-        // Prevent the browser's native overscroll / bounce behaviour
-        e.preventDefault();
+        // Track current pull distance
+        this._currentDelta = delta;
 
         // Clamp the translate value to maxPull
         const translateY = Math.min(delta, this.maxPull);
@@ -128,7 +150,9 @@ class PullToRefreshManager {
     _onTouchEnd() {
         if (!this.isPulling) return;
 
+        // Bug 1 fix: only set isPulling = false here in touchend
         this.isPulling = false;
+        this._currentDelta = 0;
 
         if (this.indicator.classList.contains('ptr-indicator--ready')) {
             this._startRefreshing();
@@ -156,23 +180,35 @@ class PullToRefreshManager {
         this.indicator.style.transform = `translateY(${this.threshold}px)`;
         this.indicator.style.opacity = '1';
 
-        // Invoke the current view's reload callback (if any)
-        const callbackPromise = this.reloadCallback
-            ? Promise.resolve(this.reloadCallback())
-            : Promise.resolve();
+        // Bug 3 fix: wrap reloadCallback() in try/catch to handle synchronous
+        // throws; otherwise isRefreshing would stay true forever and lock the manager.
+        if (!this.reloadCallback) {
+            this._stopRefreshing();
+            return;
+        }
 
-        callbackPromise.finally(() => {
-            this.isRefreshing = false;
-            this._resetIndicator();
-        });
+        let result;
+        try {
+            result = this.reloadCallback();
+        } catch (e) {
+            this._stopRefreshing();
+            return;
+        }
+        Promise.resolve(result).finally(() => this._stopRefreshing());
+    }
+
+    /**
+     * Stop the refreshing state and reset the indicator.
+     */
+    _stopRefreshing() {
+        this.isRefreshing = false;
+        this._resetIndicator();
     }
 
     /**
      * Animate the indicator back to its hidden position and remove all state classes.
      */
     _resetIndicator() {
-        this.isPulling = false;
-
         this.indicator.style.transform = '';
         this.indicator.style.opacity = '0';
         this.indicator.classList.remove('ptr-indicator--ready', 'ptr-indicator--loading');

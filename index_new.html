@@ -1,0 +1,1698 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Station Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/_sdk/element_sdk.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        * {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .nav-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-item.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+        .metric-card {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            transition: all 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        .station-card {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        .station-card:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+        .graph-bar {
+            animation: growUp 0.8s ease-out forwards;
+            transform-origin: bottom;
+        }
+        @keyframes growUp {
+            from { transform: scaleY(0); }
+            to { transform: scaleY(1); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes wave {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+        @keyframes glow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        .animate-spin-slow {
+            animation: spin 8s linear infinite;
+        }
+        .animate-wave {
+            animation: wave 2s ease-in-out infinite;
+        }
+        .animate-glow {
+            animation: glow 2s ease-in-out infinite;
+        }
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+    <style>@view-transition { navigation: auto; }</style>
+    <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+</head>
+<body class="h-full bg-slate-900 text-slate-100">
+<div id="app" class="h-full flex flex-col overflow-auto scrollbar-thin"><!-- Header -->
+    <header class="bg-slate-800/80 backdrop-blur-sm border-b border-slate-700/50 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/25">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 id="dashboard-title" class="text-lg sm:text-xl font-bold text-white">Weather Station Dashboard</h1>
+                        <p class="text-xs text-slate-400 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span> Live Data • Updated just now</p>
+                    </div>
+                </div><!-- Navigation -->
+                <nav class="flex gap-2 bg-slate-900/50 p-1 rounded-xl overflow-x-auto"><button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item active px-3 py-2 sm:px-4 rounded-lg text-sm font-medium flex items-center gap-2 whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg><span class="hidden sm:inline">Dashboard</span> </button> <button onclick="switchView('stations')" id="nav-stations" class="nav-item px-3 py-2 sm:px-4 rounded-lg text-sm font-medium text-slate-400 hover:text-white flex items-center gap-2 whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg><span class="hidden sm:inline">Stationen</span> </button> <button onclick="switchView('current')" id="nav-current" class="nav-item px-3 py-2 sm:px-4 rounded-lg text-sm font-medium text-slate-400 hover:text-white flex items-center gap-2 whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg><span class="hidden sm:inline">Station</span> </button> <button onclick="switchView('history')" id="nav-history" class="nav-item px-3 py-2 sm:px-4 rounded-lg text-sm font-medium text-slate-400 hover:text-white flex items-center gap-2 whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                    </svg><span class="hidden sm:inline">History</span> </button> <button onclick="openSettings()" class="nav-item px-3 py-2 sm:px-4 rounded-lg text-sm font-medium text-slate-400 hover:text-white flex items-center gap-2 whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg><span class="hidden sm:inline">Settings</span> </button>
+                </nav>
+            </div>
+        </div>
+    </header><!-- Main Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8"><!-- Stations List View -->
+        <div id="view-stations" class="view-content hidden">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-white mb-2">Wetterstationen</h2>
+                <p class="text-sm text-slate-400">Übersicht aller registrierten Stationen im Netzwerk</p>
+            </div><!-- Stations List -->
+            <div class="space-y-3"><!-- Station 1 - Downtown Station -->
+                <div class="metric-card rounded-2xl p-5 hover:scale-[1.01] transition-transform cursor-pointer" onclick="selectStation(0)">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-white">Downtown Station</h3>
+                                <p class="text-xs text-slate-400">WS-001 • Letzte Aktualisierung: vor 2 Min.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3"><span class="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 text-sm font-medium rounded-full flex items-center gap-2"> <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span> Online </span>
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div><!-- Station 2 - Harbor Station -->
+                <div class="metric-card rounded-2xl p-5 hover:scale-[1.01] transition-transform cursor-pointer" onclick="selectStation(1)">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/25">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-white">Harbor Station</h3>
+                                <p class="text-xs text-slate-400">WS-002 • Letzte Aktualisierung: vor 1 Min.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3"><span class="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 text-sm font-medium rounded-full flex items-center gap-2"> <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span> Online </span>
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div><!-- Station 3 - Mountain Peak -->
+                <div class="metric-card rounded-2xl p-5 hover:scale-[1.01] transition-transform cursor-pointer" onclick="selectStation(2)">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/25">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-white">Mountain Peak</h3>
+                                <p class="text-xs text-slate-400">WS-003 • Letzte Aktualisierung: vor 3 Min.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3"><span class="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 text-sm font-medium rounded-full flex items-center gap-2"> <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span> Online </span>
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div><!-- Station 4 - Airport Zone -->
+                <div class="metric-card rounded-2xl p-5 hover:scale-[1.01] transition-transform cursor-pointer" onclick="selectStation(3)">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-white">Airport Zone</h3>
+                                <p class="text-xs text-slate-400">WS-004 • Letzte Aktualisierung: vor 8 Min.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3"><span class="px-3 py-1.5 bg-amber-500/20 text-amber-400 text-sm font-medium rounded-full flex items-center gap-2"> <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Verzögert </span>
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div><!-- Station 5 - Valley Station -->
+                <div class="metric-card rounded-2xl p-5 hover:scale-[1.01] transition-transform cursor-pointer" onclick="selectStation(4)">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-500/25">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-white">Valley Station</h3>
+                                <p class="text-xs text-slate-400">WS-005 • Letzte Aktualisierung: vor 1 Min.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3"><span class="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 text-sm font-medium rounded-full flex items-center gap-2"> <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span> Online </span>
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div><!-- Station 6 - Industrial Park (Offline) -->
+                <div class="metric-card rounded-2xl p-5 hover:scale-[1.01] transition-transform cursor-pointer opacity-60" onclick="selectStation(5)">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-400">Industrial Park</h3>
+                                <p class="text-xs text-slate-500">WS-006 • Letzte Aktualisierung: vor 45 Min.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3"><span class="px-3 py-1.5 bg-red-500/20 text-red-400 text-sm font-medium rounded-full flex items-center gap-2"> <span class="w-2 h-2 rounded-full bg-red-400"></span> Offline </span>
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- Summary Stats -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8">
+                <div class="metric-card rounded-xl p-5 text-center">
+                    <p class="text-3xl font-bold text-white mono">6</p>
+                    <p class="text-sm text-slate-400 mt-1">Gesamt</p>
+                </div>
+                <div class="metric-card rounded-xl p-5 text-center">
+                    <p class="text-3xl font-bold text-emerald-400 mono">4</p>
+                    <p class="text-sm text-slate-400 mt-1">Online</p>
+                </div>
+                <div class="metric-card rounded-xl p-5 text-center">
+                    <p class="text-3xl font-bold text-amber-400 mono">1</p>
+                    <p class="text-sm text-slate-400 mt-1">Verzögert</p>
+                </div>
+                <div class="metric-card rounded-xl p-5 text-center">
+                    <p class="text-3xl font-bold text-red-400 mono">1</p>
+                    <p class="text-sm text-slate-400 mt-1">Offline</p>
+                </div>
+            </div>
+        </div><!-- Dashboard View -->
+        <div id="view-dashboard" class="view-content"><!-- Summary Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mb-6">
+                <div class="metric-card rounded-2xl p-4 sm:p-5">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+                            </svg>
+                        </div><span class="text-xs text-emerald-400 font-medium">Outdoor</span>
+                    </div>
+                    <p class="text-2xl sm:text-3xl font-bold text-white mono">22.4°F</p>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1">Temperature</p>
+                </div>
+                <div class="metric-card rounded-2xl p-4 sm:p-5">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                            </svg>
+                        </div><span class="text-xs text-blue-400 font-medium">Normal</span>
+                    </div>
+                    <p class="text-2xl sm:text-3xl font-bold text-white mono">68%</p>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1">Humidity</p>
+                </div>
+                <div class="metric-card rounded-2xl p-4 sm:p-5">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </div><span class="text-xs text-slate-400 font-medium">245°</span>
+                    </div>
+                    <p class="text-2xl sm:text-3xl font-bold text-white mono">8.5 <span class="text-base font-normal text-slate-500">mph</span></p>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1">Wind Speed</p>
+                </div>
+                <div class="metric-card rounded-2xl p-4 sm:p-5">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-violet-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div><span class="text-xs text-slate-400 font-medium">Rel</span>
+                    </div>
+                    <p class="text-2xl sm:text-3xl font-bold text-white mono">29.92</p>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1">Pressure (in)</p>
+                </div>
+                <div class="metric-card rounded-2xl p-4 sm:p-5">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                            </svg>
+                        </div><span class="text-xs text-green-400 font-medium">Good</span>
+                    </div>
+                    <p class="text-2xl sm:text-3xl font-bold text-white mono">412</p>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1">CO₂ (ppm)</p>
+                </div>
+                <div class="metric-card rounded-2xl p-4 sm:p-5">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                            </svg>
+                        </div><span class="text-xs text-slate-400 font-medium">Low</span>
+                    </div>
+                    <p class="text-2xl sm:text-3xl font-bold text-white mono">38 <span class="text-base font-normal text-slate-500">dB</span></p>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1">Noise Level</p>
+                </div>
+            </div><!-- Indoor/Outdoor Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6"><!-- Indoor Sensors -->
+                <div class="metric-card rounded-2xl p-5">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold text-white">Indoor Sensors</h3>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl"><span class="text-sm text-slate-300">Temperature</span> <span class="text-lg font-bold text-amber-400 mono">72.5°F</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl"><span class="text-sm text-slate-300">Humidity</span> <span class="text-lg font-bold text-blue-400 mono">45%</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl"><span class="text-sm text-slate-300">Pressure (Rel)</span> <span class="text-lg font-bold text-violet-400 mono">29.92 in</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl"><span class="text-sm text-slate-300">Pressure (Abs)</span> <span class="text-lg font-bold text-violet-400 mono">30.15 in</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl"><span class="text-sm text-slate-300">CO₂</span> <span class="text-lg font-bold text-green-400 mono">456 ppm</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl"><span class="text-sm text-slate-300">Noise</span> <span class="text-lg font-bold text-pink-400 mono">42 dB</span>
+                        </div>
+                    </div>
+                </div><!-- Outdoor Sensors -->
+                <div class="metric-card rounded-2xl p-5">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold text-white">Outdoor Sensors</h3>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl"><span class="text-sm text-slate-300">Temperature</span> <span class="text-lg font-bold text-amber-400 mono">22.4°F</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl"><span class="text-sm text-slate-300">Humidity</span> <span class="text-lg font-bold text-blue-400 mono">68%</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl"><span class="text-sm text-slate-300">Wind Speed</span> <span class="text-lg font-bold text-cyan-400 mono">8.5 mph</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl"><span class="text-sm text-slate-300">Battery</span> <span class="text-lg font-bold text-emerald-400 mono">Good</span>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- Visual Widgets -->
+            <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg> Visual Instruments</h2>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"><!-- Rain Gauge Widget -->
+                <div class="metric-card rounded-2xl p-5">
+                    <h4 class="text-sm font-semibold text-white mb-4 text-center">Rain Gauge</h4>
+                    <div class="flex flex-col items-center">
+                        <svg width="120" height="160" viewbox="0 0 120 180" class="mb-3"><!-- Glass container --> <defs>
+                            <lineargradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#e0f2fe;stop-opacity:0.3" />
+                                <stop offset="50%" style="stop-color:#bae6fd;stop-opacity:0.2" />
+                                <stop offset="100%" style="stop-color:#e0f2fe;stop-opacity:0.3" />
+                            </lineargradient>
+                            <lineargradient id="waterGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.8" />
+                                <stop offset="50%" style="stop-color:#60a5fa;stop-opacity:0.9" />
+                                <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0.8" />
+                            </lineargradient>
+                        </defs> <!-- Glass outline --> <path d="M 40 20 L 35 50 L 35 150 Q 35 160 45 160 L 75 160 Q 85 160 85 150 L 85 50 L 80 20 Z" fill="url(#glassGradient)" stroke="#60a5fa" stroke-width="2" opacity="0.6" /> <!-- Measurement lines --> <line x1="30" y1="60" x2="38" y2="60" stroke="#64748b" stroke-width="1" /> <text x="25" y="63" fill="#64748b" font-size="8" text-anchor="end">
+                            2.0
+                        </text> <line x1="30" y1="85" x2="38" y2="85" stroke="#64748b" stroke-width="1" /> <text x="25" y="88" fill="#64748b" font-size="8" text-anchor="end">
+                            1.5
+                        </text> <line x1="30" y1="110" x2="38" y2="110" stroke="#64748b" stroke-width="1" /> <text x="25" y="113" fill="#64748b" font-size="8" text-anchor="end">
+                            1.0
+                        </text> <line x1="30" y1="135" x2="38" y2="135" stroke="#64748b" stroke-width="1" /> <text x="25" y="138" fill="#64748b" font-size="8" text-anchor="end">
+                            0.5
+                        </text> <!-- Water level (animated fill) --> <path d="M 36 144 L 36 155 Q 36 159 40 159 L 80 159 Q 84 159 84 155 L 84 144 Z" fill="url(#waterGradient)" class="rain-fill">
+                            <animate attributename="d" values="M 36 155 L 36 155 Q 36 159 40 159 L 80 159 Q 84 159 84 155 L 84 155 Z;
+                                   M 36 144 L 36 155 Q 36 159 40 159 L 80 159 Q 84 159 84 155 L 84 144 Z" dur="2s" fill="freeze" />
+                        </path> <!-- Water surface wave --> <path d="M 36 144 Q 45 142 54 144 T 84 144" fill="none" stroke="#93c5fd" stroke-width="1.5" opacity="0.7">
+                            <animate attributename="d" values="M 36 144 Q 45 142 54 144 T 84 144;
+                                   M 36 144 Q 45 146 54 144 T 84 144;
+                                   M 36 144 Q 45 142 54 144 T 84 144" dur="3s" repeatcount="indefinite" />
+                        </path> <!-- Rain drops --> <circle cx="50" cy="5" r="2" fill="#3b82f6" opacity="0">
+                            <animate attributename="cy" values="5;160" dur="1.5s" repeatcount="indefinite" />
+                            <animate attributename="opacity" values="0;0.8;0" dur="1.5s" repeatcount="indefinite" />
+                        </circle> <circle cx="70" cy="5" r="2" fill="#3b82f6" opacity="0">
+                            <animate attributename="cy" values="5;160" dur="1.5s" begin="0.5s" repeatcount="indefinite" />
+                            <animate attributename="opacity" values="0;0.8;0" dur="1.5s" begin="0.5s" repeatcount="indefinite" />
+                        </circle>
+                        </svg>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-blue-400 mono">0.15 in</p>
+                            <p class="text-xs text-slate-400 mt-1">Daily Rainfall</p>
+                            <p class="text-xs text-slate-500 mt-1">Weekly: 1.28 in</p>
+                        </div>
+                    </div>
+                </div><!-- Thermometer Widget -->
+                <div class="metric-card rounded-2xl p-5">
+                    <h4 class="text-sm font-semibold text-white mb-4 text-center">Thermometer</h4>
+                    <div class="flex flex-col items-center">
+                        <svg width="80" height="160" viewbox="0 0 80 180" class="mb-3"><defs>
+                            <lineargradient id="tempGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                                <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+                                <stop offset="40%" style="stop-color:#f59e0b;stop-opacity:1" />
+                                <stop offset="70%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0.3" />
+                            </lineargradient>
+                            <lineargradient id="mercuryGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#fca5a5;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#ef4444;stop-opacity:1" />
+                            </lineargradient>
+                        </defs> <!-- Thermometer tube --> <rect x="30" y="20" width="20" height="120" rx="10" fill="#1e293b" stroke="#475569" stroke-width="2" /> <!-- Temperature scale --> <line x1="52" y1="30" x2="58" y2="30" stroke="#64748b" stroke-width="1" /> <text x="62" y="33" fill="#64748b" font-size="9">
+                            100°
+                        </text> <line x1="52" y1="50" x2="58" y2="50" stroke="#64748b" stroke-width="1" /> <text x="62" y="53" fill="#64748b" font-size="9">
+                            80°
+                        </text> <line x1="52" y1="70" x2="58" y2="70" stroke="#64748b" stroke-width="1" /> <text x="62" y="73" fill="#64748b" font-size="9">
+                            60°
+                        </text> <line x1="52" y1="90" x2="58" y2="90" stroke="#64748b" stroke-width="1" /> <text x="62" y="93" fill="#64748b" font-size="9">
+                            40°
+                        </text> <line x1="52" y1="110" x2="58" y2="110" stroke="#64748b" stroke-width="1" /> <text x="62" y="113" fill="#64748b" font-size="9">
+                            20°
+                        </text> <line x1="52" y1="130" x2="58" y2="130" stroke="#64748b" stroke-width="1" /> <text x="62" y="133" fill="#64748b" font-size="9">
+                            0°
+                        </text> <!-- Mercury column (22.4°F ≈ 112px from bottom) --> <rect x="32" y="118" width="16" height="20" fill="url(#mercuryGradient)">
+                            <animate attributename="y" values="138;118" dur="2s" fill="freeze" />
+                            <animate attributename="height" values="0;20" dur="2s" fill="freeze" />
+                        </rect> <!-- Bulb --> <circle cx="40" cy="150" r="15" fill="#ef4444" stroke="#dc2626" stroke-width="2">
+                            <animate attributename="r" values="13;15;13" dur="3s" repeatcount="indefinite" />
+                        </circle> <circle cx="40" cy="150" r="10" fill="#fca5a5" opacity="0.6" />
+                        </svg>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-amber-400 mono">22.4°F</p>
+                            <p class="text-xs text-slate-400 mt-1">Outdoor Temp</p>
+                            <p class="text-xs text-slate-500 mt-1">Indoor: 72.5°F</p>
+                        </div>
+                    </div>
+                </div><!-- Wind Rose Widget -->
+                <div class="metric-card rounded-2xl p-5">
+                    <h4 class="text-sm font-semibold text-white mb-4 text-center">Wind Rose</h4>
+                    <div class="flex flex-col items-center">
+                        <svg width="140" height="140" viewbox="0 0 140 140" class="mb-3"><defs>
+                            <lineargradient id="needleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#fca5a5;stop-opacity:1" />
+                            </lineargradient>
+                        </defs> <!-- Compass circle --> <circle cx="70" cy="70" r="60" fill="none" stroke="#334155" stroke-width="2" /> <circle cx="70" cy="70" r="50" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="2,2" /> <circle cx="70" cy="70" r="40" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="2,2" /> <circle cx="70" cy="70" r="30" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="2,2" /> <!-- Cardinal directions --> <text x="70" y="20" fill="#ef4444" font-size="14" font-weight="bold" text-anchor="middle">
+                            N
+                        </text> <text x="120" y="75" fill="#64748b" font-size="12" text-anchor="middle">
+                            E
+                        </text> <text x="70" y="125" fill="#64748b" font-size="12" text-anchor="middle">
+                            S
+                        </text> <text x="20" y="75" fill="#64748b" font-size="12" text-anchor="middle">
+                            W
+                        </text> <!-- Direction lines --> <line x1="70" y1="10" x2="70" y2="30" stroke="#475569" stroke-width="2" /> <line x1="70" y1="110" x2="70" y2="130" stroke="#475569" stroke-width="1" /> <line x1="10" y1="70" x2="30" y2="70" stroke="#475569" stroke-width="1" /> <line x1="110" y1="70" x2="130" y2="70" stroke="#475569" stroke-width="1" /> <!-- Wind needle (245° = WSW, rotated from North) --> <g transform="rotate(245 70 70)">
+                            <path d="M 70 25 L 75 70 L 70 75 L 65 70 Z" fill="url(#needleGradient)" stroke="#dc2626" stroke-width="1">
+                                <animatetransform attributename="transform" type="rotate" values="0 0 45;0 0 50;0 0 45" dur="2s" repeatcount="indefinite" additive="sum" />
+                            </path>
+                            <circle cx="70" cy="70" r="5" fill="#ef4444" stroke="#dc2626" stroke-width="2" />
+                        </g> <!-- Center dot --> <circle cx="70" cy="70" r="3" fill="#1e293b" />
+                        </svg>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-cyan-400 mono">245°</p>
+                            <p class="text-xs text-slate-400 mt-1">WSW Wind</p>
+                            <p class="text-xs text-slate-500 mt-1">Speed: 8.5 mph</p>
+                        </div>
+                    </div>
+                </div><!-- Wind Speed Gauge Widget (Chart.js) -->
+                <div class="metric-card rounded-2xl p-5">
+                    <h4 class="text-sm font-semibold text-white mb-4 text-center">Wind Speed Gauge</h4>
+                    <div class="flex flex-col items-center">
+                        <div style="width: 140px; height: 140px; position: relative;" class="mb-3">
+                            <canvas id="windGaugeChart" width="140" height="140"></canvas>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;"><!-- Wind icon with 2 wave lines -->
+                                <svg width="40" height="40" viewbox="0 0 40 40"><path d="M5 15 Q10 12 15 15 T25 15 T35 15" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linecap="round">
+                                    <animatetransform attributename="transform" type="translate" values="0,0; 4,0; 0,0; -4,0; 0,0" dur="1.5s" repeatcount="indefinite" />
+                                </path> <path d="M3 25 Q8 22 13 25 T23 25 T33 25" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.6">
+                                    <animatetransform attributename="transform" type="translate" values="0,0; 4,0; 0,0; -4,0; 0,0" dur="1.5s" begin="0.4s" repeatcount="indefinite" />
+                                </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <p class="text-2xl font-bold text-cyan-400 mono">8.5 mph</p>
+                            <p class="text-xs text-slate-400 mt-1">Current Speed</p>
+                            <p class="text-xs text-slate-500 mt-1">Max Gust: 12.3 mph</p>
+                        </div>
+                    </div>
+                </div><!-- Solar Radiation & UV Widget -->
+                <div class="metric-card rounded-2xl p-5">
+                    <h4 class="text-sm font-semibold text-white mb-4 text-center">Solar &amp; UV</h4>
+                    <div class="flex flex-col items-center">
+                        <svg width="140" height="140" viewbox="0 0 140 140" class="mb-3"><defs>
+                            <radialgradient id="sunGradient" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:0.8" />
+                            </radialgradient>
+                        </defs> <!-- 12 Sun rays around circle (456 W/m² = ~45% of max 1000 W/m²) --> <!-- First 5 rays active (yellow), rest inactive (gray) --> <!-- Ray 1 - Top (0°) - Active --> <line x1="70" y1="15" x2="70" y2="30" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" /> <!-- Ray 2 - 30° - Active --> <line x1="98.5" y1="23.5" x2="90" y2="35" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" /> <!-- Ray 3 - 60° - Active --> <line x1="116.5" y1="41.5" x2="105" y2="50" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" /> <!-- Ray 4 - 90° (Right) - Active --> <line x1="125" y1="70" x2="110" y2="70" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" /> <!-- Ray 5 - 120° - Active --> <line x1="116.5" y1="98.5" x2="105" y2="90" stroke="#fbbf24" stroke-width="3" stroke-linecap="round" /> <!-- Ray 6 - 150° - Inactive --> <line x1="98.5" y1="116.5" x2="90" y2="105" stroke="#475569" stroke-width="3" stroke-linecap="round" opacity="0.3" /> <!-- Ray 7 - Bottom (180°) - Inactive --> <line x1="70" y1="125" x2="70" y2="110" stroke="#475569" stroke-width="3" stroke-linecap="round" opacity="0.3" /> <!-- Ray 8 - 210° - Inactive --> <line x1="41.5" y1="116.5" x2="50" y2="105" stroke="#475569" stroke-width="3" stroke-linecap="round" opacity="0.3" /> <!-- Ray 9 - 240° - Inactive --> <line x1="23.5" y1="98.5" x2="35" y2="90" stroke="#475569" stroke-width="3" stroke-linecap="round" opacity="0.3" /> <!-- Ray 10 - 270° (Left) - Inactive --> <line x1="15" y1="70" x2="30" y2="70" stroke="#475569" stroke-width="3" stroke-linecap="round" opacity="0.3" /> <!-- Ray 11 - 300° - Inactive --> <line x1="23.5" y1="41.5" x2="35" y2="50" stroke="#475569" stroke-width="3" stroke-linecap="round" opacity="0.3" /> <!-- Ray 12 - 330° - Inactive --> <line x1="41.5" y1="23.5" x2="50" y2="35" stroke="#475569" stroke-width="3" stroke-linecap="round" opacity="0.3" /> <!-- Sun core circle --> <circle cx="70" cy="70" r="25" fill="url(#sunGradient)" stroke="#fbbf24" stroke-width="2">
+                            <animate attributename="r" values="25;27;25" dur="3s" repeatcount="indefinite" />
+                        </circle> <!-- Inner glow --> <circle cx="70" cy="70" r="18" fill="#fef3c7" opacity="0.4" class="animate-glow" />
+                        </svg>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-amber-400 mono">456 W/m²</p>
+                            <p class="text-xs text-slate-400 mt-1">Solar Radiation</p>
+                            <p class="text-xs text-slate-500 mt-1">UV Index: 6.2 (High)</p>
+                        </div>
+                    </div>
+                </div><!-- CO₂ Level Widget -->
+                <div class="metric-card rounded-2xl p-5">
+                    <h4 class="text-sm font-semibold text-white mb-4 text-center">CO₂ Level</h4>
+                    <div class="flex flex-col items-center">
+                        <svg width="140" height="160" viewbox="0 0 140 180" class="mb-3"><defs>
+                            <lineargradient id="co2Gradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.9" />
+                                <stop offset="50%" style="stop-color:#34d399;stop-opacity:0.7" />
+                                <stop offset="100%" style="stop-color:#6ee7b7;stop-opacity:0.5" />
+                            </lineargradient>
+                            <lineargradient id="co2Fill" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#6ee7b7;stop-opacity:0.8" />
+                                <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
+                            </lineargradient>
+                        </defs> <!-- Container outline --> <rect x="45" y="20" width="50" height="130" rx="5" fill="#1e293b" stroke="#334155" stroke-width="2" /> <!-- Scale markers and labels --> <line x1="40" y1="30" x2="45" y2="30" stroke="#64748b" stroke-width="1" /> <text x="35" y="33" fill="#64748b" font-size="8" text-anchor="end">
+                            2000
+                        </text> <line x1="40" y1="55" x2="45" y2="55" stroke="#64748b" stroke-width="1" /> <text x="35" y="58" fill="#64748b" font-size="8" text-anchor="end">
+                            1500
+                        </text> <line x1="40" y1="80" x2="45" y2="80" stroke="#64748b" stroke-width="1" /> <text x="35" y="83" fill="#64748b" font-size="8" text-anchor="end">
+                            1000
+                        </text> <line x1="40" y1="105" x2="45" y2="105" stroke="#64748b" stroke-width="1" /> <text x="35" y="108" fill="#64748b" font-size="8" text-anchor="end">
+                            500
+                        </text> <line x1="40" y1="130" x2="45" y2="130" stroke="#64748b" stroke-width="1" /> <text x="35" y="133" fill="#64748b" font-size="8" text-anchor="end">
+                            400
+                        </text> <line x1="40" y1="145" x2="45" y2="145" stroke="#64748b" stroke-width="1" /> <text x="35" y="148" fill="#64748b" font-size="8" text-anchor="end">
+                            0
+                        </text> <!-- CO₂ fill level (412 ppm = good, ~8% from bottom) --> <rect x="47" y="137" width="46" height="10" rx="3" fill="url(#co2Fill)">
+                            <animate attributename="y" values="145;137" dur="2s" fill="freeze" />
+                            <animate attributename="height" values="0;10" dur="2s" fill="freeze" />
+                        </rect> <!-- Floating particles/molecules --> <circle cx="60" cy="70" r="2" fill="#10b981" opacity="0.6">
+                            <animate attributename="cy" values="70;50;70" dur="4s" repeatcount="indefinite" />
+                            <animate attributename="opacity" values="0.6;0.3;0.6" dur="4s" repeatcount="indefinite" />
+                        </circle> <circle cx="75" cy="90" r="2" fill="#10b981" opacity="0.5">
+                            <animate attributename="cy" values="90;65;90" dur="3.5s" repeatcount="indefinite" />
+                            <animate attributename="opacity" values="0.5;0.2;0.5" dur="3.5s" repeatcount="indefinite" />
+                        </circle> <circle cx="85" cy="110" r="2" fill="#10b981" opacity="0.7">
+                            <animate attributename="cy" values="110;80;110" dur="4.5s" repeatcount="indefinite" />
+                            <animate attributename="opacity" values="0.7;0.3;0.7" dur="4.5s" repeatcount="indefinite" />
+                        </circle> <!-- Status indicator --> <circle cx="70" cy="165" r="6" fill="#10b981">
+                            <animate attributename="r" values="6;7;6" dur="2s" repeatcount="indefinite" />
+                        </circle> <text x="70" y="169" fill="white" font-size="10" font-weight="bold" text-anchor="middle">
+                            ���
+                        </text>
+                        </svg>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-green-400 mono">412 ppm</p>
+                            <p class="text-xs text-slate-400 mt-1">Indoor CO₂</p>
+                            <p class="text-xs text-green-400 mt-1">Good Air Quality</p>
+                        </div>
+                    </div>
+                </div><!-- Noise Level Widget -->
+                <div class="metric-card rounded-2xl p-5">
+                    <h4 class="text-sm font-semibold text-white mb-4 text-center">Noise Level</h4>
+                    <div class="flex flex-col items-center">
+                        <svg width="140" height="160" viewbox="0 0 140 180" class="mb-3"><defs>
+                            <lineargradient id="noiseGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#ec4899;stop-opacity:0.3" />
+                                <stop offset="50%" style="stop-color:#f472b6;stop-opacity:0.6" />
+                                <stop offset="100%" style="stop-color:#ec4899;stop-opacity:0.3" />
+                            </lineargradient>
+                        </defs> <!-- Volume bars - 10 bars, 38dB = ~3 bars active (quiet) --> <rect x="20" y="140" width="8" height="20" rx="2" fill="#10b981" opacity="0.8" /> <rect x="33" y="130" width="8" height="30" rx="2" fill="#10b981" opacity="0.8" /> <rect x="46" y="120" width="8" height="40" rx="2" fill="#22c55e" opacity="0.8" /> <rect x="59" y="110" width="8" height="50" rx="2" fill="#334155" opacity="0.3" /> <rect x="72" y="100" width="8" height="60" rx="2" fill="#334155" opacity="0.3" /> <rect x="85" y="90" width="8" height="70" rx="2" fill="#334155" opacity="0.3" /> <rect x="98" y="80" width="8" height="80" rx="2" fill="#334155" opacity="0.3" /> <rect x="111" y="70" width="8" height="90" rx="2" fill="#334155" opacity="0.3" /> <!-- Sound waves emanating from speaker --> <circle cx="70" cy="45" r="20" fill="none" stroke="#ec4899" stroke-width="2" opacity="0">
+                            <animate attributename="r" values="15;35" dur="2s" repeatcount="indefinite" />
+                            <animate attributename="opacity" values="0.6;0" dur="2s" repeatcount="indefinite" />
+                        </circle> <circle cx="70" cy="45" r="20" fill="none" stroke="#ec4899" stroke-width="2" opacity="0">
+                            <animate attributename="r" values="15;35" dur="2s" begin="0.7s" repeatcount="indefinite" />
+                            <animate attributename="opacity" values="0.6;0" dur="2s" begin="0.7s" repeatcount="indefinite" />
+                        </circle> <circle cx="70" cy="45" r="20" fill="none" stroke="#ec4899" stroke-width="2" opacity="0">
+                            <animate attributename="r" values="15;35" dur="2s" begin="1.4s" repeatcount="indefinite" />
+                            <animate attributename="opacity" values="0.6;0" dur="2s" begin="1.4s" repeatcount="indefinite" />
+                        </circle> <!-- Speaker icon --> <path d="M 60 35 L 60 55 L 50 55 L 40 45 L 40 35 L 50 35 Z" fill="#ec4899" opacity="0.8" /> <circle cx="70" cy="45" r="8" fill="#f472b6" opacity="0.6">
+                            <animate attributename="r" values="8;10;8" dur="1.5s" repeatcount="indefinite" />
+                        </circle> <!-- Decibel scale --> <text x="70" y="175" fill="#64748b" font-size="9" text-anchor="middle">
+                            0 dB — Quiet — 120 dB
+                        </text>
+                        </svg>
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-pink-400 mono">38 dB</p>
+                            <p class="text-xs text-slate-400 mt-1">Ambient Noise</p>
+                            <p class="text-xs text-green-400 mt-1">Quiet Environment</p>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- Wind & Solar Section -->
+            <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg> Wind &amp; Solar Data</h2>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"><!-- Combined Wind Data -->
+                <div class="metric-card rounded-xl p-5">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="text-2xl">
+                            💨
+                        </div>
+                        <h4 class="font-semibold text-white text-sm">Wind</h4>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">Speed</span> <span class="text-sm font-bold text-cyan-400 mono">8.5 mph</span>
+                        </div>
+                        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">Direction</span> <span class="text-sm font-bold text-white mono">245°</span>
+                        </div>
+                        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">Gust</span> <span class="text-sm font-bold text-white mono">12.3 mph</span>
+                        </div>
+                        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">Max Daily</span> <span class="text-sm font-bold text-white mono">18.7 mph</span>
+                        </div>
+                    </div>
+                </div><!-- Combined Solar Data -->
+                <div class="metric-card rounded-xl p-5">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="text-2xl">
+                            ☀️
+                        </div>
+                        <h4 class="font-semibold text-white text-sm">Solar</h4>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">Radiation</span> <span class="text-sm font-bold text-amber-400 mono">456 W/m²</span>
+                        </div>
+                        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">UV Index</span> <span class="text-sm font-bold text-white mono">6.2</span>
+                        </div>
+                        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">VPD</span> <span class="text-sm font-bold text-white mono">0.85 kPa</span>
+                        </div>
+                    </div>
+                </div><!-- Combined Short-term Rain -->
+                <div class="metric-card rounded-xl p-5">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="text-2xl">
+                            💧
+                        </div>
+                        <h4 class="font-semibold text-white text-sm">Recent Rain</h4>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">Rate</span> <span class="text-sm font-bold text-blue-400 mono">0.00 in/h</span>
+                        </div>
+                        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">Hourly</span> <span class="text-sm font-bold text-white mono">0.00 in</span>
+                        </div>
+                        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">Event</span> <span class="text-sm font-bold text-white mono">0.00 in</span>
+                        </div>
+                        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">Daily</span> <span class="text-sm font-bold text-white mono">0.15 in</span>
+                        </div>
+                    </div>
+                </div><!-- Combined Long-term Rain -->
+                <div class="metric-card rounded-xl p-5">
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="text-2xl">
+                            🌧️
+                        </div>
+                        <h4 class="font-semibold text-white text-sm">Total Rain</h4>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">Weekly</span> <span class="text-sm font-bold text-blue-400 mono">1.28 in</span>
+                        </div>
+                        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">Monthly</span> <span class="text-sm font-bold text-white mono">4.52 in</span>
+                        </div>
+                        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">Yearly</span> <span class="text-sm font-bold text-white mono">38.7 in</span>
+                        </div>
+                        <div class="flex justify-between items-center"><span class="text-xs text-slate-400">Total</span> <span class="text-sm font-bold text-white mono">42.3 in</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- Current Station View -->
+        <div id="view-current" class="view-content hidden">
+            <div class="mb-6"><button onclick="switchView('dashboard')" class="text-sm text-slate-400 hover:text-white flex items-center gap-1 mb-3 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg> Back to Dashboard </button>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <h2 id="current-station-title" class="text-2xl font-bold text-white">Weather Station</h2>
+                        <p class="text-sm text-slate-400">Last updated: just now</p>
+                    </div><span class="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 text-sm font-medium rounded-full flex items-center gap-2 w-fit"> <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span> Station Online </span>
+                </div>
+            </div><!-- Primary Outdoor Metrics -->
+            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                </svg> Outdoor Sensors</h3>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="metric-card rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400">Temperature</p>
+                            <p class="text-2xl font-bold text-white mono" id="current-temp">22.4°F</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-xs"><span class="text-slate-500">Outdoor</span> <span class="text-amber-400">tempf</span>
+                    </div>
+                </div>
+                <div class="metric-card rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/25">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400">Humidity</p>
+                            <p class="text-2xl font-bold text-white mono" id="current-humidity">68%</p>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-blue-500 to-cyan-400 h-2 rounded-full" style="width: 68%"></div>
+                    </div>
+                </div>
+                <div class="metric-card rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center shadow-lg shadow-cyan-500/25">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400">Wind Speed</p>
+                            <p class="text-2xl font-bold text-white mono" id="current-wind">8.5 <span class="text-sm font-normal text-slate-500">mph</span></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-xs"><span class="text-slate-500">Direction: 245°</span> <span class="text-cyan-400">Gust: 12.3 mph</span>
+                    </div>
+                </div>
+                <div class="metric-card rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-500/25">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400">Battery</p>
+                            <p class="text-2xl font-bold text-white mono">Good</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 text-xs text-emerald-400">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg> wh65batt
+                    </div>
+                </div>
+            </div><!-- Wind & Solar Data -->
+            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg> Wind &amp; Solar</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl mb-1">
+                        🧭
+                    </div>
+                    <p class="text-lg font-bold text-white mono">245°</p>
+                    <p class="text-xs text-slate-400">Wind Direction</p>
+                    <p class="text-xs text-slate-500 mt-1">winddir</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl mb-1">
+                        💨
+                    </div>
+                    <p class="text-lg font-bold text-white mono">12.3 <span class="text-xs text-slate-500">mph</span></p>
+                    <p class="text-xs text-slate-400">Wind Gust</p>
+                    <p class="text-xs text-slate-500 mt-1">windgustmph</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl mb-1">
+                        🌪️
+                    </div>
+                    <p class="text-lg font-bold text-white mono">18.7 <span class="text-xs text-slate-500">mph</span></p>
+                    <p class="text-xs text-slate-400">Max Daily Gust</p>
+                    <p class="text-xs text-slate-500 mt-1">maxdailygust</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl mb-1">
+                        ☀��
+                    </div>
+                    <p class="text-lg font-bold text-white mono">456 <span class="text-xs text-slate-500">W/m²</span></p>
+                    <p class="text-xs text-slate-400">Solar Radiation</p>
+                    <p class="text-xs text-slate-500 mt-1">solarradiation</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl mb-1">
+                        🔆
+                    </div>
+                    <p class="text-lg font-bold text-white mono">6.2</p>
+                    <p class="text-xs text-slate-400">UV Index</p>
+                    <p class="text-xs text-slate-500 mt-1">uv</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl mb-1">
+                        🌿
+                    </div>
+                    <p class="text-lg font-bold text-white mono">0.85 <span class="text-xs text-slate-500">kPa</span></p>
+                    <p class="text-xs text-slate-400">VPD</p>
+                    <p class="text-xs text-slate-500 mt-1">vpd</p>
+                </div>
+            </div><!-- Precipitation Data -->
+            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg> Precipitation</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-6">
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <p class="text-lg font-bold text-white mono">0.00</p>
+                    <p class="text-xs text-slate-400 mb-1">Rate (in/h)</p>
+                    <p class="text-xs text-slate-500">rainratein</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <p class="text-lg font-bold text-white mono">0.00</p>
+                    <p class="text-xs text-slate-400 mb-1">Event (in)</p>
+                    <p class="text-xs text-slate-500">eventrainin</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <p class="text-lg font-bold text-white mono">0.00</p>
+                    <p class="text-xs text-slate-400 mb-1">Hourly (in)</p>
+                    <p class="text-xs text-slate-500">hourlyrainin</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <p class="text-lg font-bold text-white mono">0.15</p>
+                    <p class="text-xs text-slate-400 mb-1">Daily (in)</p>
+                    <p class="text-xs text-slate-500">dailyrainin</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <p class="text-lg font-bold text-white mono">1.28</p>
+                    <p class="text-xs text-slate-400 mb-1">Weekly (in)</p>
+                    <p class="text-xs text-slate-500">weeklyrainin</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <p class="text-lg font-bold text-white mono">4.52</p>
+                    <p class="text-xs text-slate-400 mb-1">Monthly (in)</p>
+                    <p class="text-xs text-slate-500">monthlyrainin</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <p class="text-lg font-bold text-white mono">38.7</p>
+                    <p class="text-xs text-slate-400 mb-1">Yearly (in)</p>
+                    <p class="text-xs text-slate-500">yearlyrainin</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <p class="text-lg font-bold text-white mono">42.3</p>
+                    <p class="text-xs text-slate-400 mb-1">Total (in)</p>
+                    <p class="text-xs text-slate-500">totalrainin</p>
+                </div>
+            </div><!-- Indoor Sensors -->
+            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg> Indoor Sensors</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl mb-1">
+                        🌡️
+                    </div>
+                    <p class="text-lg font-bold text-white mono">72.5°F</p>
+                    <p class="text-xs text-slate-400 mb-1">Temperature</p>
+                    <p class="text-xs text-slate-500">tempinf</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl mb-1">
+                        💧
+                    </div>
+                    <p class="text-lg font-bold text-white mono">45%</p>
+                    <p class="text-xs text-slate-400 mb-1">Humidity</p>
+                    <p class="text-xs text-slate-500">humidityin</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl mb-1">
+                        📊
+                    </div>
+                    <p class="text-lg font-bold text-white mono">29.92 in</p>
+                    <p class="text-xs text-slate-400 mb-1">Pressure (Rel)</p>
+                    <p class="text-xs text-slate-500">baromrelin</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl mb-1">
+                        📈
+                    </div>
+                    <p class="text-lg font-bold text-white mono">30.15 in</p>
+                    <p class="text-xs text-slate-400 mb-1">Pressure (Abs)</p>
+                    <p class="text-xs text-slate-500">baromabsin</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl mb-1">
+                        ��
+                    </div>
+                    <p class="text-lg font-bold text-white mono">456 ppm</p>
+                    <p class="text-xs text-slate-400 mb-1">CO₂</p>
+                    <p class="text-xs text-slate-500">co2</p>
+                </div>
+                <div class="metric-card rounded-xl p-4 text-center">
+                    <div class="text-2xl mb-1">
+                        🔊
+                    </div>
+                    <p class="text-lg font-bold text-white mono">42 dB</p>
+                    <p class="text-xs text-slate-400 mb-1">Noise Level</p>
+                    <p class="text-xs text-slate-500">noise</p>
+                </div>
+            </div>
+        </div><!-- History View -->
+        <div id="view-history" class="view-content hidden">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-white mb-2">Historical Data</h2>
+                <p class="text-sm text-slate-400">Sensor trends from your weather station</p>
+            </div><!-- Temperature Chart -->
+            <div class="metric-card rounded-2xl p-5 mb-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                    <div>
+                        <h3 class="font-semibold text-white flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-400"></span> Outdoor Temperature</h3>
+                        <p class="text-xs text-slate-400">Daily average (°F) - Last 7 days</p>
+                    </div>
+                    <div class="flex gap-2"><button class="px-3 py-1.5 bg-slate-700 text-white rounded-lg text-xs font-medium">7D</button> <button class="px-3 py-1.5 bg-slate-800 text-slate-400 rounded-lg text-xs font-medium hover:bg-slate-700">30D</button> <button class="px-3 py-1.5 bg-slate-800 text-slate-400 rounded-lg text-xs font-medium hover:bg-slate-700">90D</button>
+                    </div>
+                </div><!-- Bar Chart -->
+                <div class="flex items-end justify-between gap-2 h-40 mb-3">
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                        <div class="w-full bg-gradient-to-t from-amber-500 to-amber-400 rounded-t-lg graph-bar" style="height: 70%; animation-delay: 0s"></div><span class="text-xs text-slate-400">Mon</span>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                        <div class="w-full bg-gradient-to-t from-amber-500 to-amber-400 rounded-t-lg graph-bar" style="height: 85%; animation-delay: 0.1s"></div><span class="text-xs text-slate-400">Tue</span>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                        <div class="w-full bg-gradient-to-t from-amber-500 to-amber-400 rounded-t-lg graph-bar" style="height: 75%; animation-delay: 0.2s"></div><span class="text-xs text-slate-400">Wed</span>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                        <div class="w-full bg-gradient-to-t from-amber-500 to-amber-400 rounded-t-lg graph-bar" style="height: 90%; animation-delay: 0.3s"></div><span class="text-xs text-slate-400">Thu</span>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                        <div class="w-full bg-gradient-to-t from-amber-500 to-amber-400 rounded-t-lg graph-bar" style="height: 80%; animation-delay: 0.4s"></div><span class="text-xs text-slate-400">Fri</span>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                        <div class="w-full bg-gradient-to-t from-amber-500 to-amber-400 rounded-t-lg graph-bar" style="height: 65%; animation-delay: 0.5s"></div><span class="text-xs text-slate-400">Sat</span>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                        <div class="w-full bg-gradient-to-t from-amber-500 to-orange-400 rounded-t-lg graph-bar" style="height: 95%; animation-delay: 0.6s"></div><span class="text-xs text-blue-400 font-medium">Today</span>
+                    </div>
+                </div>
+                <div class="flex justify-between text-xs text-slate-500 border-t border-slate-700 pt-3"><span>Min: 18°F</span> <span>Avg: 22.5°F</span> <span>Max: 28°F</span>
+                </div>
+            </div><!-- Humidity Chart -->
+            <div class="metric-card rounded-2xl p-5 mb-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                    <div>
+                        <h3 class="font-semibold text-white flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-400"></span> Outdoor Humidity</h3>
+                        <p class="text-xs text-slate-400">Daily average (%) - Last 7 days</p>
+                    </div>
+                </div><!-- Line Chart representation -->
+                <div class="relative h-32 mb-3">
+                    <svg class="w-full h-full" viewbox="0 0 700 120" preserveaspectratio="none"><defs>
+                        <lineargradient id="humidityGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.3" />
+                            <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0" />
+                        </lineargradient>
+                    </defs> <path d="M0,80 Q100,60 200,70 T400,50 T600,65 L700,55 L700,120 L0,120 Z" fill="url(#humidityGradient)" /> <path d="M0,80 Q100,60 200,70 T400,50 T600,65 L700,55" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" /> <circle cx="0" cy="80" r="4" fill="#3b82f6" /> <circle cx="100" cy="60" r="4" fill="#3b82f6" /> <circle cx="200" cy="70" r="4" fill="#3b82f6" /> <circle cx="350" cy="55" r="4" fill="#3b82f6" /> <circle cx="500" cy="45" r="4" fill="#3b82f6" /> <circle cx="600" cy="65" r="4" fill="#3b82f6" /> <circle cx="700" cy="55" r="6" fill="#3b82f6" stroke="#1e293b" stroke-width="2" />
+                    </svg>
+                </div>
+                <div class="flex justify-between text-xs text-slate-400"><span>Mon</span> <span>Tue</span> <span>Wed</span> <span>Thu</span> <span>Fri</span> <span>Sat</span> <span class="text-blue-400 font-medium">Today</span>
+                </div>
+            </div><!-- Wind Speed & Rainfall Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="metric-card rounded-2xl p-5">
+                    <div class="mb-4">
+                        <h3 class="font-semibold text-white flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-cyan-400"></span> Wind Speed</h3>
+                        <p class="text-xs text-slate-400">Hourly average (mph) - Today</p>
+                    </div>
+                    <div class="flex items-end justify-between gap-1 h-24">
+                        <div class="flex-1 bg-gradient-to-t from-cyan-500/50 to-cyan-400/50 rounded-t" style="height: 30%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-cyan-500/50 to-cyan-400/50 rounded-t" style="height: 25%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-cyan-500/50 to-cyan-400/50 rounded-t" style="height: 40%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-cyan-500/50 to-cyan-400/50 rounded-t" style="height: 55%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-cyan-500/50 to-cyan-400/50 rounded-t" style="height: 70%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-cyan-500/50 to-cyan-400/50 rounded-t" style="height: 85%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-cyan-500/50 to-cyan-400/50 rounded-t" style="height: 75%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-cyan-500/50 to-cyan-400/50 rounded-t" style="height: 60%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-cyan-500/50 to-cyan-400/50 rounded-t" style="height: 50%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-cyan-500/50 to-cyan-400/50 rounded-t" style="height: 45%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-cyan-500/50 to-cyan-400/50 rounded-t" style="height: 35%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-cyan-500 to-cyan-400 rounded-t" style="height: 65%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-slate-500 mt-2"><span>6AM</span> <span>12PM</span> <span>6PM</span>
+                    </div>
+                </div>
+                <div class="metric-card rounded-2xl p-5">
+                    <div class="mb-4">
+                        <h3 class="font-semibold text-white flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-400"></span> Daily Rainfall</h3>
+                        <p class="text-xs text-slate-400">Last 7 days (inches)</p>
+                    </div>
+                    <div class="flex items-end justify-between gap-2 h-24">
+                        <div class="flex-1 bg-gradient-to-t from-blue-500 to-blue-400 rounded-t" style="height: 20%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-blue-500 to-blue-400 rounded-t" style="height: 35%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-blue-500 to-blue-400 rounded-t" style="height: 0%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-blue-500 to-blue-400 rounded-t" style="height: 5%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-blue-500 to-blue-400 rounded-t" style="height: 45%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-blue-500 to-blue-400 rounded-t" style="height: 15%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-blue-500 to-blue-400 rounded-t" style="height: 25%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-slate-400 mt-2"><span>M</span> <span>T</span> <span>W</span> <span>T</span> <span>F</span> <span>S</span> <span>S</span>
+                    </div>
+                </div>
+            </div><!-- Barometric Pressure & Solar Radiation -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="metric-card rounded-2xl p-5">
+                    <div class="mb-4">
+                        <h3 class="font-semibold text-white flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-violet-400"></span> Barometric Pressure</h3>
+                        <p class="text-xs text-slate-400">Last 24 hours (in)</p>
+                    </div>
+                    <div class="relative h-24">
+                        <svg class="w-full h-full" viewbox="0 0 400 100" preserveaspectratio="none"><defs>
+                            <lineargradient id="pressureGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:0.3" />
+                                <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:0" />
+                            </lineargradient>
+                        </defs> <path d="M0,60 L50,55 L100,58 L150,52 L200,48 L250,45 L300,42 L350,40 L400,38 L400,100 L0,100 Z" fill="url(#pressureGradient)" /> <path d="M0,60 L50,55 L100,58 L150,52 L200,48 L250,45 L300,42 L350,40 L400,38" fill="none" stroke="#8b5cf6" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="flex justify-between items-center text-xs mt-2"><span class="text-slate-500">29.45 in</span> <span class="text-violet-400 font-medium flex items-center gap-1">
+         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+         </svg> Rising to 29.92 in </span>
+                    </div>
+                </div>
+                <div class="metric-card rounded-2xl p-5">
+                    <div class="mb-4">
+                        <h3 class="font-semibold text-white flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-400"></span> Solar Radiation</h3>
+                        <p class="text-xs text-slate-400">Today (W/m²)</p>
+                    </div>
+                    <div class="flex items-end justify-between gap-1 h-24">
+                        <div class="flex-1 bg-gradient-to-t from-amber-500/30 to-amber-400/30 rounded-t" style="height: 5%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-amber-500/40 to-amber-400/40 rounded-t" style="height: 15%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-amber-500/50 to-amber-400/50 rounded-t" style="height: 35%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-amber-500/60 to-amber-400/60 rounded-t" style="height: 55%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-amber-500/70 to-amber-400/70 rounded-t" style="height: 75%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-amber-500/80 to-amber-400/80 rounded-t" style="height: 90%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-amber-500 to-amber-400 rounded-t" style="height: 100%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-amber-500 to-amber-400 rounded-t" style="height: 95%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-amber-500/80 to-amber-400/80 rounded-t" style="height: 80%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-amber-500/70 to-amber-400/70 rounded-t" style="height: 60%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-amber-500/50 to-amber-400/50 rounded-t" style="height: 40%"></div>
+                        <div class="flex-1 bg-gradient-to-t from-amber-500/40 to-amber-400/40 rounded-t" style="height: 20%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-slate-500 mt-2"><span>6AM</span> <span>12PM</span> <span>6PM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main><!-- Footer -->
+    <footer class="bg-slate-800/50 border-t border-slate-700/50 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+                <p>© 2024 Weather Station Network</p>
+                <p>Data refreshes every 5 minutes</p>
+            </div>
+        </div>
+    </footer>
+</div><!-- Settings Modal -->
+<div id="settings-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-800 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col"><!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 border-b border-slate-700">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Einstellungen</h2>
+            </div><button onclick="closeSettings()" class="w-10 h-10 rounded-lg bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg></button>
+        </div><!-- Modal Body -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin"><!-- Sprache & Region -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                    </svg> Sprache &amp; Region</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><!-- Sprache -->
+                    <div><label for="language" class="block text-sm font-medium text-slate-300 mb-2">Sprache</label>
+                        <div class="relative"><select id="language" class="w-full bg-slate-700 text-white rounded-lg px-4 py-3 pr-10 appearance-none focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"> <option value="de" selected>🇩🇪 Deutsch</option> <option value="en">🇬🇧 English</option> </select>
+                            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div><!-- Zeitzone -->
+                    <div><label for="timezone" class="block text-sm font-medium text-slate-300 mb-2">Zeitzone</label>
+                        <div class="relative"><select id="timezone" class="w-full bg-slate-700 text-white rounded-lg px-4 py-3 pr-10 appearance-none focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"> <option value="Europe/Berlin" selected>Europe/Berlin (CET)</option> <option value="Europe/London">Europe/London (GMT)</option> <option value="America/New_York">America/New York (EST)</option> <option value="America/Los_Angeles">America/Los Angeles (PST)</option> <option value="Asia/Tokyo">Asia/Tokyo (JST)</option> <option value="Australia/Sydney">Australia/Sydney (AEDT)</option> </select>
+                            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div><!-- Datumsformat -->
+                    <div class="sm:col-span-2"><label for="dateformat" class="block text-sm font-medium text-slate-300 mb-2">Datumsformat</label>
+                        <div class="relative"><select id="dateformat" class="w-full bg-slate-700 text-white rounded-lg px-4 py-3 pr-10 appearance-none focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"> <option value="DD.MM.YYYY" selected>DD.MM.YYYY (31.12.2024)</option> <option value="MM/DD/YYYY">MM/DD/YYYY (12/31/2024)</option> <option value="YYYY-MM-DD">YYYY-MM-DD (2024-12-31)</option> <option value="DD/MM/YYYY">DD/MM/YYYY (31/12/2024)</option> </select>
+                            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- Einheiten -->
+            <div class="space-y-4 border-t border-slate-700 pt-6">
+                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg> Einheiten</h3><!-- Schnell-Konfiguration -->
+                <div><label class="block text-sm font-medium text-slate-300 mb-2">Schnell-Konfiguration</label>
+                    <div class="flex flex-wrap gap-2"><button onclick="applyPreset('metric')" class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-medium hover:from-blue-700 hover:to-blue-600 transition-all shadow-lg shadow-blue-500/25"> 📏 Metrisch </button> <button onclick="applyPreset('imperial')" class="px-4 py-2.5 bg-slate-700 text-white rounded-lg font-medium hover:bg-slate-600 transition-colors"> 🇺🇸 Imperial </button> <button onclick="applyPreset('aviation')" class="px-4 py-2.5 bg-slate-700 text-white rounded-lg font-medium hover:bg-slate-600 transition-colors"> ✈️ Luftfahrt </button>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">Stellt vordefinierte Einheitenkombinationen ein</p>
+                </div><!-- Temperatur -->
+                <div><label class="block text-sm font-medium text-slate-300 mb-2">Temperatur</label>
+                    <div class="flex gap-3"><label class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors flex-1"> <input type="radio" name="temp" value="C" checked class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white font-medium">°C (Celsius)</span> </label> <label class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors flex-1"> <input type="radio" name="temp" value="F" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white font-medium">°F (Fahrenheit)</span> </label>
+                    </div>
+                </div><!-- Wind -->
+                <div><label class="block text-sm font-medium text-slate-300 mb-2">Wind</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2"><label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="wind" value="ms" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">m/s</span> </label> <label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="wind" value="kmh" checked class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">km/h</span> </label> <label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="wind" value="mph" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">mph</span> </label> <label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="wind" value="kn" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">kn</span> </label>
+                    </div>
+                </div><!-- Luftdruck -->
+                <div><label class="block text-sm font-medium text-slate-300 mb-2">Luftdruck</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2"><label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="pressure" value="hPa" checked class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">hPa</span> </label> <label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="pressure" value="mbar" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">mbar</span> </label> <label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="pressure" value="mmHg" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">mmHg</span> </label> <label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="pressure" value="inHg" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">inHg</span> </label>
+                    </div>
+                </div><!-- Höhe -->
+                <div><label class="block text-sm font-medium text-slate-300 mb-2">Höhe</label>
+                    <div class="flex gap-3"><label class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors flex-1"> <input type="radio" name="altitude" value="m" checked class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white font-medium">m (Meter)</span> </label> <label class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors flex-1"> <input type="radio" name="altitude" value="ft" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white font-medium">ft (Fuß)</span> </label>
+                    </div>
+                </div><!-- Regen -->
+                <div><label class="block text-sm font-medium text-slate-300 mb-2">Regen</label>
+                    <div class="flex gap-3"><label class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors flex-1"> <input type="radio" name="rain" value="mm" checked class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white font-medium">mm (Millimeter)</span> </label> <label class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors flex-1"> <input type="radio" name="rain" value="in" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white font-medium">in (Zoll)</span> </label>
+                    </div>
+                </div>
+            </div>
+        </div><!-- Modal Footer -->
+        <div class="flex items-center justify-end gap-3 p-6 border-t border-slate-700 bg-slate-800/50"><button onclick="closeSettings()" class="px-6 py-2.5 bg-slate-700 text-white rounded-lg font-medium hover:bg-slate-600 transition-colors"> Abbrechen </button> <button onclick="saveSettings()" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-medium hover:from-blue-700 hover:to-blue-600 transition-all shadow-lg shadow-blue-500/25"> Speichern </button>
+        </div>
+    </div>
+</div>
+<script>
+    // ============================================================================
+    // BASE WIDGET COMPONENT
+    // ============================================================================
+    class Widget {
+        constructor(container, data = {}) {
+            this.container = container;
+            this.data = data;
+            this.element = null;
+        }
+
+        render() {
+            throw new Error('render() must be implemented by subclass');
+        }
+
+        update(newData) {
+            this.data = { ...this.data, ...newData };
+            this.render();
+        }
+
+        destroy() {
+            if (this.element) {
+                this.element.remove();
+                this.element = null;
+            }
+        }
+    }
+
+    // ============================================================================
+    // METRIC CARD WIDGET (Summary Card with Icon)
+    // ============================================================================
+    class MetricCard extends Widget {
+        render() {
+            const { icon, label, value, unit, status, statusColor, apiField } = this.data;
+
+            this.container.innerHTML = `
+          <div class="metric-card rounded-2xl p-4 sm:p-5">
+            <div class="flex items-start justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-${statusColor || 'blue'}-500/20 flex items-center justify-center">
+                ${icon}
+              </div>
+              ${status ? `<span class="text-xs text-${statusColor || 'blue'}-400 font-medium">${status}</span>` : ''}
+            </div>
+            <p class="text-2xl sm:text-3xl font-bold text-white mono">${value}${unit ? `<span class="text-base font-normal text-slate-500">${unit}</span>` : ''}</p>
+            <p class="text-xs sm:text-sm text-slate-400 mt-1">${label}</p>
+          </div>
+        `;
+
+            this.element = this.container.firstElementChild;
+            return this.element;
+        }
+    }
+
+    // ============================================================================
+    // STATION LIST ITEM WIDGET
+    // ============================================================================
+    class StationListItemWidget extends Widget {
+        render() {
+            const { name, id, status, lastUpdate, gradient, index, onClick } = this.data;
+
+            const statusConfig = {
+                online: { color: 'emerald', text: 'Online', pulse: true },
+                delayed: { color: 'amber', text: 'Verzögert', pulse: true },
+                offline: { color: 'red', text: 'Offline', pulse: false }
+            };
+
+            const statusInfo = statusConfig[status] || statusConfig.offline;
+            const isOffline = status === 'offline';
+
+            this.container.innerHTML = `
+          <div class="metric-card rounded-2xl p-5 hover:scale-[1.01] transition-transform cursor-pointer ${isOffline ? 'opacity-60' : ''}"
+               data-station-index="${index}">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center ${isOffline ? '' : 'shadow-lg shadow-' + gradient.split(' ')[1].replace('to-', '') + '/25'}">
+                  <svg class="w-6 h-6 ${isOffline ? 'text-slate-400' : 'text-white'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold ${isOffline ? 'text-slate-400' : 'text-white'}">${name}</h3>
+                  <p class="text-xs ${isOffline ? 'text-slate-500' : 'text-slate-400'}">${id} • Letzte Aktualisierung: ${lastUpdate}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="px-3 py-1.5 bg-${statusInfo.color}-500/20 text-${statusInfo.color}-400 text-sm font-medium rounded-full flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-${statusInfo.color}-400 ${statusInfo.pulse ? 'pulse-dot' : ''}"></span>
+                  ${statusInfo.text}
+                </span>
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        `;
+
+            this.element = this.container.firstElementChild;
+            this.element.addEventListener('click', () => onClick(index));
+            return this.element;
+        }
+    }
+
+    // ============================================================================
+    // SENSOR GROUP WIDGET (Indoor/Outdoor)
+    // ============================================================================
+    class SensorGroup extends Widget {
+        render() {
+            const { title, icon, iconColor, sensors } = this.data;
+
+            const sensorsHTML = sensors.map(sensor => `
+          <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl">
+            <span class="text-sm text-slate-300">${sensor.label}</span>
+            <span class="text-lg font-bold text-${sensor.color || 'white'} mono">${sensor.value}</span>
+          </div>
+        `).join('');
+
+            this.container.innerHTML = `
+          <div class="metric-card rounded-2xl p-5">
+            <div class="flex items-center gap-2 mb-4">
+              <div class="w-8 h-8 rounded-lg bg-${iconColor}-500/20 flex items-center justify-center">
+                ${icon}
+              </div>
+              <h3 class="font-semibold text-white">${title}</h3>
+            </div>
+            <div class="space-y-3">
+              ${sensorsHTML}
+            </div>
+          </div>
+        `;
+
+            this.element = this.container.firstElementChild;
+            return this.element;
+        }
+    }
+
+    // ============================================================================
+    // VISUAL INSTRUMENT WIDGET (Rain Gauge, Thermometer, etc.)
+    // ============================================================================
+    class VisualInstrumentWidget extends Widget {
+        render() {
+            const { type, title, value, unit, subtitle, svg } = this.data;
+
+            this.container.innerHTML = `
+          <div class="metric-card rounded-2xl p-5">
+            <h4 class="text-sm font-semibold text-white mb-4 text-center">${title}</h4>
+            <div class="flex flex-col items-center">
+              ${svg}
+              <div class="text-center">
+                <p class="text-2xl font-bold text-${this.getColorForType(type)} mono">${value}${unit ? ' ' + unit : ''}</p>
+                <p class="text-xs text-slate-400 mt-1">${title}</p>
+                ${subtitle ? `<p class="text-xs text-slate-500 mt-1">${subtitle}</p>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+
+            this.element = this.container.firstElementChild;
+            return this.element;
+        }
+
+        getColorForType(type) {
+            const colors = {
+                rain: 'blue-400',
+                thermometer: 'amber-400',
+                wind: 'cyan-400',
+                solar: 'amber-400',
+                co2: 'green-400',
+                noise: 'pink-400'
+            };
+            return colors[type] || 'blue-400';
+        }
+    }
+
+    // ============================================================================
+    // CHART WIDGET (Bar/Line Charts)
+    // ============================================================================
+    class Chart extends Widget {
+        render() {
+            const { title, subtitle, type, labels, data, color, timeRange } = this.data;
+
+            let chartHTML = '';
+            if (type === 'bar') {
+                chartHTML = this.renderBarChart(labels, data, color);
+            } else if (type === 'line') {
+                chartHTML = this.renderLineChart(labels, data, color);
+            }
+
+            this.container.innerHTML = `
+          <div class="metric-card rounded-2xl p-5 mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+              <div>
+                <h3 class="font-semibold text-white flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full bg-${color}-400"></span>
+                  ${title}
+                </h3>
+                <p class="text-xs text-slate-400">${subtitle}</p>
+              </div>
+              ${timeRange ? this.renderTimeRangeButtons() : ''}
+            </div>
+            ${chartHTML}
+          </div>
+        `;
+
+            this.element = this.container.firstElementChild;
+            return this.element;
+        }
+
+        renderBarChart(labels, data, color) {
+            const maxValue = Math.max(...data);
+            const bars = labels.map((label, index) => {
+                const height = (data[index] / maxValue) * 100;
+                const isLast = index === labels.length - 1;
+                return `
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full bg-gradient-to-t from-${color}-500 to-${color}-400 rounded-t-lg graph-bar" style="height: ${height}%; animation-delay: ${index * 0.1}s"></div>
+              <span class="text-xs ${isLast ? 'text-' + color + '-400 font-medium' : 'text-slate-400'}">${label}</span>
+            </div>
+          `;
+            }).join('');
+
+            return `
+          <div class="flex items-end justify-between gap-2 h-40 mb-3">
+            ${bars}
+          </div>
+          <div class="flex justify-between text-xs text-slate-500 border-t border-slate-700 pt-3">
+            <span>Min: ${Math.min(...data).toFixed(1)}${this.data.unit || ''}</span>
+            <span>Avg: ${(data.reduce((a, b) => a + b, 0) / data.length).toFixed(1)}${this.data.unit || ''}</span>
+            <span>Max: ${Math.max(...data).toFixed(1)}${this.data.unit || ''}</span>
+          </div>
+        `;
+        }
+
+        renderLineChart(labels, data, color) {
+            const maxValue = Math.max(...data);
+            const minValue = Math.min(...data);
+            const range = maxValue - minValue;
+
+            const points = data.map((value, index) => {
+                const x = (index / (data.length - 1)) * 700;
+                const y = 120 - ((value - minValue) / range) * 100;
+                return { x, y };
+            });
+
+            const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
+            const areaD = `${pathD} L700,120 L0,120 Z`;
+
+            const circles = points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#3b82f6"/>`).join('');
+            const lastPoint = points[points.length - 1];
+
+            return `
+          <div class="relative h-32 mb-3">
+            <svg class="w-full h-full" viewBox="0 0 700 120" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="lineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.3" />
+                  <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0" />
+                </linearGradient>
+              </defs>
+              <path d="${areaD}" fill="url(#lineGradient)"/>
+              <path d="${pathD}" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>
+              ${circles}
+              <circle cx="${lastPoint.x}" cy="${lastPoint.y}" r="6" fill="#3b82f6" stroke="#1e293b" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="flex justify-between text-xs text-slate-400">
+            ${labels.map((label, i) => `<span class="${i === labels.length - 1 ? 'text-blue-400 font-medium' : ''}">${label}</span>`).join('')}
+          </div>
+        `;
+        }
+
+        renderTimeRangeButtons() {
+            return `
+          <div class="flex gap-2">
+            <button class="px-3 py-1.5 bg-slate-700 text-white rounded-lg text-xs font-medium">7D</button>
+            <button class="px-3 py-1.5 bg-slate-800 text-slate-400 rounded-lg text-xs font-medium hover:bg-slate-700">30D</button>
+            <button class="px-3 py-1.5 bg-slate-800 text-slate-400 rounded-lg text-xs font-medium hover:bg-slate-700">90D</button>
+          </div>
+        `;
+        }
+    }
+
+    // ============================================================================
+    // WIND GAUGE WIDGET (Chart.js)
+    // ============================================================================
+    class WindSpeed extends Widget {
+        render() {
+            const { speed, maxSpeed, unit, subtitle } = this.data;
+
+            this.container.innerHTML = `
+          <div class="metric-card rounded-2xl p-5">
+            <h4 class="text-sm font-semibold text-white mb-4 text-center">Wind Speed Gauge</h4>
+            <div class="flex flex-col items-center">
+              <div style="width: 140px; height: 140px; position: relative;" class="mb-3">
+                <canvas class="wind-gauge-canvas" width="140" height="140"></canvas>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                  <svg width="40" height="40" viewBox="0 0 40 40">
+                    <path d="M5 15 Q10 12 15 15 T25 15 T35 15" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linecap="round">
+                      <animateTransform attributeName="transform" type="translate"
+                                        values="0,0; 4,0; 0,0; -4,0; 0,0"
+                                        dur="1.5s" repeatCount="indefinite"/>
+                    </path>
+                    <path d="M3 25 Q8 22 13 25 T23 25 T33 25" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.6">
+                      <animateTransform attributeName="transform" type="translate"
+                                        values="0,0; 4,0; 0,0; -4,0; 0,0"
+                                        dur="1.5s" begin="0.4s" repeatCount="indefinite"/>
+                    </path>
+                  </svg>
+                </div>
+              </div>
+              <div class="text-center mt-3">
+                <p class="text-2xl font-bold text-cyan-400 mono">${speed} ${unit}</p>
+                <p class="text-xs text-slate-400 mt-1">Current Speed</p>
+                <p class="text-xs text-slate-500 mt-1">${subtitle}</p>
+              </div>
+            </div>
+          </div>
+        `;
+
+            this.element = this.container.firstElementChild;
+
+            // Initialize Chart.js
+            setTimeout(() => {
+                const canvas = this.element.querySelector('.wind-gauge-canvas');
+                if (canvas && window.Chart) {
+                    const percentage = (speed / maxSpeed) * 100;
+                    new Chart(canvas, {
+                        type: 'doughnut',
+                        data: {
+                            datasets: [{
+                                data: [percentage, 100 - percentage],
+                                backgroundColor: ['rgba(6, 182, 212, 0.8)', 'rgba(30, 41, 59, 0.6)'],
+                                borderWidth: 0,
+                                circumference: 180,
+                                rotation: 270
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            cutout: '75%',
+                            plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                        }
+                    });
+                }
+            }, 100);
+
+            return this.element;
+        }
+    }
+
+    // ============================================================================
+    // APP STATE & DATA
+    // ============================================================================
+    const defaultConfig = {
+        dashboard_title: 'Weather Station Dashboard',
+        station_name: 'Downtown Station',
+        background_color: '#0f172a',
+        surface_color: '#1e293b',
+        text_color: '#f1f5f9',
+        primary_action_color: '#3b82f6',
+        secondary_action_color: '#64748b',
+        font_family: 'Space Grotesk',
+        font_size: 16
+    };
+
+    let config = { ...defaultConfig };
+
+    const stations = [
+        { name: 'Downtown Station', id: 'WS-001', temp: '26.2', humidity: '58', wind: '8', pressure: '1015', status: 'online', gradient: 'from-emerald-500 to-teal-500', lastUpdate: 'vor 2 Min.' },
+        { name: 'Harbor Station', id: 'WS-002', temp: '23.8', humidity: '72', wind: '15', pressure: '1012', status: 'online', gradient: 'from-blue-500 to-cyan-500', lastUpdate: 'vor 1 Min.' },
+        { name: 'Mountain Peak', id: 'WS-003', temp: '18.4', humidity: '45', wind: '24', pressure: '980', status: 'online', gradient: 'from-purple-500 to-pink-500', lastUpdate: 'vor 3 Min.' },
+        { name: 'Airport Zone', id: 'WS-004', temp: '25.1', humidity: '61', wind: '11', pressure: '1014', status: 'delayed', gradient: 'from-amber-500 to-orange-500', lastUpdate: 'vor 8 Min.' },
+        { name: 'Valley Station', id: 'WS-005', temp: '27.9', humidity: '68', wind: '6', pressure: '1016', status: 'online', gradient: 'from-green-500 to-emerald-500', lastUpdate: 'vor 1 Min.' },
+        { name: 'Industrial Park', id: 'WS-006', temp: '--.-', humidity: '--', wind: '--', pressure: '----', status: 'offline', gradient: 'from-slate-600 to-slate-700', lastUpdate: 'vor 45 Min.' }
+    ];
+
+    let currentStation = 0;
+
+    // ============================================================================
+    // APP FUNCTIONS
+    // ============================================================================
+    function switchView(view) {
+        document.querySelectorAll('.view-content').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.nav-item').forEach(el => {
+            el.classList.remove('active');
+            el.classList.add('text-slate-400');
+        });
+
+        document.getElementById(`view-${view}`).classList.remove('hidden');
+        const navBtn = document.getElementById(`nav-${view}`);
+        navBtn.classList.add('active');
+        navBtn.classList.remove('text-slate-400');
+    }
+
+    function selectStation(index) {
+        currentStation = index;
+        const station = stations[index];
+
+        document.getElementById('current-station-title').textContent = station.name;
+        document.getElementById('current-temp').textContent = station.temp + '°C';
+        document.getElementById('current-humidity').textContent = station.humidity + '%';
+        document.getElementById('current-wind').innerHTML = station.wind + ' <span class="text-sm font-normal text-slate-500">km/h</span>';
+
+        switchView('current');
+    }
+
+    function openSettings() {
+        document.getElementById('settings-modal').classList.remove('hidden');
+        document.getElementById('settings-modal').classList.add('flex');
+    }
+
+    function closeSettings() {
+        document.getElementById('settings-modal').classList.add('hidden');
+        document.getElementById('settings-modal').classList.remove('flex');
+    }
+
+    function applyPreset(preset) {
+        const presetButtons = document.querySelectorAll('[onclick^="applyPreset"]');
+        presetButtons.forEach(btn => {
+            btn.className = 'px-4 py-2.5 bg-slate-700 text-white rounded-lg font-medium hover:bg-slate-600 transition-colors';
+        });
+
+        event.target.className = 'px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-medium hover:from-blue-700 hover:to-blue-600 transition-all shadow-lg shadow-blue-500/25';
+
+        if (preset === 'metric') {
+            document.querySelector('input[name="temp"][value="C"]').checked = true;
+            document.querySelector('input[name="wind"][value="kmh"]').checked = true;
+            document.querySelector('input[name="pressure"][value="hPa"]').checked = true;
+            document.querySelector('input[name="altitude"][value="m"]').checked = true;
+            document.querySelector('input[name="rain"][value="mm"]').checked = true;
+        } else if (preset === 'imperial') {
+            document.querySelector('input[name="temp"][value="F"]').checked = true;
+            document.querySelector('input[name="wind"][value="mph"]').checked = true;
+            document.querySelector('input[name="pressure"][value="inHg"]').checked = true;
+            document.querySelector('input[name="altitude"][value="ft"]').checked = true;
+            document.querySelector('input[name="rain"][value="in"]').checked = true;
+        } else if (preset === 'aviation') {
+            document.querySelector('input[name="temp"][value="C"]').checked = true;
+            document.querySelector('input[name="wind"][value="kn"]').checked = true;
+            document.querySelector('input[name="pressure"][value="hPa"]').checked = true;
+            document.querySelector('input[name="altitude"][value="ft"]').checked = true;
+            document.querySelector('input[name="rain"][value="mm"]').checked = true;
+        }
+    }
+
+    function saveSettings() {
+        const settings = {
+            language: document.getElementById('language').value,
+            timezone: document.getElementById('timezone').value,
+            dateformat: document.getElementById('dateformat').value,
+            temp: document.querySelector('input[name="temp"]:checked').value,
+            wind: document.querySelector('input[name="wind"]:checked').value,
+            pressure: document.querySelector('input[name="pressure"]:checked').value,
+            altitude: document.querySelector('input[name="altitude"]:checked').value,
+            rain: document.querySelector('input[name="rain"]:checked').value
+        };
+
+        console.log('Settings saved:', settings);
+
+        const saveBtn = event.target;
+        const originalText = saveBtn.textContent;
+        saveBtn.textContent = '✓ Gespeichert!';
+        saveBtn.className = 'px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg font-medium shadow-lg shadow-green-500/25';
+
+        setTimeout(() => {
+            closeSettings();
+            setTimeout(() => {
+                saveBtn.textContent = originalText;
+                saveBtn.className = 'px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-medium hover:from-blue-700 hover:to-blue-600 transition-all shadow-lg shadow-blue-500/25';
+            }, 300);
+        }, 800);
+    }
+
+    async function onConfigChange(newConfig) {
+        config = { ...config, ...newConfig };
+
+        const dashboardTitle = document.getElementById('dashboard-title');
+        if (dashboardTitle) {
+            dashboardTitle.textContent = config.dashboard_title || defaultConfig.dashboard_title;
+        }
+
+        const currentStationTitle = document.getElementById('current-station-title');
+        if (currentStationTitle && currentStation === 0) {
+            currentStationTitle.textContent = config.station_name || defaultConfig.station_name;
+        }
+
+        document.body.style.backgroundColor = config.background_color || defaultConfig.background_color;
+
+        document.querySelectorAll('.metric-card, .station-card').forEach(el => {
+            el.style.background = `linear-gradient(145deg, ${config.surface_color || defaultConfig.surface_color} 0%, ${config.background_color || defaultConfig.background_color} 100%)`;
+        });
+
+        const customFont = config.font_family || defaultConfig.font_family;
+        const baseFontStack = 'sans-serif';
+        document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+
+        const baseSize = config.font_size || defaultConfig.font_size;
+        document.querySelectorAll('h1').forEach(el => el.style.fontSize = `${baseSize * 1.25}px`);
+        document.querySelectorAll('h2').forEach(el => el.style.fontSize = `${baseSize * 1.5}px`);
+        document.querySelectorAll('h3').forEach(el => el.style.fontSize = `${baseSize * 1.125}px`);
+        document.querySelectorAll('p, span, button').forEach(el => {
+            if (!el.closest('.mono')) {
+                el.style.fontSize = `${baseSize}px`;
+            }
+        });
+    }
+
+    function mapToCapabilities(cfg) {
+        return {
+            recolorables: [
+                { get: () => cfg.background_color || defaultConfig.background_color, set: (value) => { cfg.background_color = value; if (window.elementSdk) window.elementSdk.setConfig({ background_color: value }); } },
+                { get: () => cfg.surface_color || defaultConfig.surface_color, set: (value) => { cfg.surface_color = value; if (window.elementSdk) window.elementSdk.setConfig({ surface_color: value }); } },
+                { get: () => cfg.text_color || defaultConfig.text_color, set: (value) => { cfg.text_color = value; if (window.elementSdk) window.elementSdk.setConfig({ text_color: value }); } },
+                { get: () => cfg.primary_action_color || defaultConfig.primary_action_color, set: (value) => { cfg.primary_action_color = value; if (window.elementSdk) window.elementSdk.setConfig({ primary_action_color: value }); } },
+                { get: () => cfg.secondary_action_color || defaultConfig.secondary_action_color, set: (value) => { cfg.secondary_action_color = value; if (window.elementSdk) window.elementSdk.setConfig({ secondary_action_color: value }); } }
+            ],
+            borderables: [],
+            fontEditable: { get: () => cfg.font_family || defaultConfig.font_family, set: (value) => { cfg.font_family = value; if (window.elementSdk) window.elementSdk.setConfig({ font_family: value }); } },
+            fontSizeable: { get: () => cfg.font_size || defaultConfig.font_size, set: (value) => { cfg.font_size = value; if (window.elementSdk) window.elementSdk.setConfig({ font_size: value }); } }
+        };
+    }
+
+    function mapToEditPanelValues(cfg) {
+        return new Map([
+            ['dashboard_title', cfg.dashboard_title || defaultConfig.dashboard_title],
+            ['station_name', cfg.station_name || defaultConfig.station_name]
+        ]);
+    }
+
+    // ============================================================================
+    // INITIALIZATION
+    // ============================================================================
+    if (window.elementSdk) {
+        window.elementSdk.init({ defaultConfig, onConfigChange, mapToCapabilities, mapToEditPanelValues });
+    } else {
+        onConfigChange(defaultConfig);
+    }
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c2eab0fe4cd2182',t:'MTc2OTI0ODY2My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

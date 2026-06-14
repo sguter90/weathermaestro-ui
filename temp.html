@@ -1,0 +1,74 @@
+<div id="settings-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-800 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col"><!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 border-b border-slate-700">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-white">Einstellungen</h2>
+            </div><button onclick="closeSettings()" class="w-10 h-10 rounded-lg bg-slate-700 hover:bg-slate-600 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg></button>
+        </div><!-- Modal Body -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin"><!-- Sprache & Region -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                    </svg> Sprache &amp; Region</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><!-- Sprache -->
+                    <div><label for="language" class="block text-sm font-medium text-slate-300 mb-2">Sprache</label>
+                        <div class="relative"><select id="language" class="w-full bg-slate-700 text-white rounded-lg px-4 py-3 pr-10 appearance-none focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"> <option value="de" selected>🇩🇪 Deutsch</option> <option value="en">🇬🇧 English</option> </select>
+                            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div><!-- Zeitzone -->
+                    <div><label for="timezone" class="block text-sm font-medium text-slate-300 mb-2">Zeitzone</label>
+                        <div class="relative"><select id="timezone" class="w-full bg-slate-700 text-white rounded-lg px-4 py-3 pr-10 appearance-none focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"> <option value="Europe/Berlin" selected>Europe/Berlin (CET)</option> <option value="Europe/London">Europe/London (GMT)</option> <option value="America/New_York">America/New York (EST)</option> <option value="America/Los_Angeles">America/Los Angeles (PST)</option> <option value="Asia/Tokyo">Asia/Tokyo (JST)</option> <option value="Australia/Sydney">Australia/Sydney (AEDT)</option> </select>
+                            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div><!-- Datumsformat -->
+                    <div class="sm:col-span-2"><label for="dateformat" class="block text-sm font-medium text-slate-300 mb-2">Datumsformat</label>
+                        <div class="relative"><select id="dateformat" class="w-full bg-slate-700 text-white rounded-lg px-4 py-3 pr-10 appearance-none focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer"> <option value="DD.MM.YYYY" selected>DD.MM.YYYY (31.12.2024)</option> <option value="MM/DD/YYYY">MM/DD/YYYY (12/31/2024)</option> <option value="YYYY-MM-DD">YYYY-MM-DD (2024-12-31)</option> <option value="DD/MM/YYYY">DD/MM/YYYY (31/12/2024)</option> </select>
+                            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- Einheiten -->
+            <div class="space-y-4 border-t border-slate-700 pt-6">
+                <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg> Einheiten</h3><!-- Schnell-Konfiguration -->
+                <div><label class="block text-sm font-medium text-slate-300 mb-2">Schnell-Konfiguration</label>
+                    <div class="flex flex-wrap gap-2"><button onclick="applyPreset('metric')" class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-medium hover:from-blue-700 hover:to-blue-600 transition-all shadow-lg shadow-blue-500/25"> 📏 Metrisch </button> <button onclick="applyPreset('imperial')" class="px-4 py-2.5 bg-slate-700 text-white rounded-lg font-medium hover:bg-slate-600 transition-colors"> 🇺🇸 Imperial </button> <button onclick="applyPreset('aviation')" class="px-4 py-2.5 bg-slate-700 text-white rounded-lg font-medium hover:bg-slate-600 transition-colors"> ✈️ Luftfahrt </button>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">Stellt vordefinierte Einheitenkombinationen ein</p>
+                </div><!-- Temperatur -->
+                <div><label class="block text-sm font-medium text-slate-300 mb-2">Temperatur</label>
+                    <div class="flex gap-3"><label class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors flex-1"> <input type="radio" name="temp" value="C" checked class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white font-medium">°C (Celsius)</span> </label> <label class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors flex-1"> <input type="radio" name="temp" value="F" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white font-medium">°F (Fahrenheit)</span> </label>
+                    </div>
+                </div><!-- Wind -->
+                <div><label class="block text-sm font-medium text-slate-300 mb-2">Wind</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2"><label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="wind" value="ms" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">m/s</span> </label> <label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="wind" value="kmh" checked class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">km/h</span> </label> <label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="wind" value="mph" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">mph</span> </label> <label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="wind" value="kn" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">kn</span> </label>
+                    </div>
+                </div><!-- Luftdruck -->
+                <div><label class="block text-sm font-medium text-slate-300 mb-2">Luftdruck</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2"><label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="pressure" value="hPa" checked class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">hPa</span> </label> <label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="pressure" value="mbar" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">mbar</span> </label> <label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="pressure" value="mmHg" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">mmHg</span> </label> <label class="flex items-center gap-2 px-3 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"> <input type="radio" name="pressure" value="inHg" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white text-sm font-medium">inHg</span> </label>
+                    </div>
+                </div><!-- Höhe -->
+                <div><label class="block text-sm font-medium text-slate-300 mb-2">Höhe</label>
+                    <div class="flex gap-3"><label class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors flex-1"> <input type="radio" name="altitude" value="m" checked class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white font-medium">m (Meter)</span> </label> <label class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors flex-1"> <input type="radio" name="altitude" value="ft" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white font-medium">ft (Fuß)</span> </label>
+                    </div>
+                </div><!-- Regen -->
+                <div><label class="block text-sm font-medium text-slate-300 mb-2">Regen</label>
+                    <div class="flex gap-3"><label class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors flex-1"> <input type="radio" name="rain" value="mm" checked class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white font-medium">mm (Millimeter)</span> </label> <label class="flex items-center gap-2 px-4 py-2.5 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors flex-1"> <input type="radio" name="rain" value="in" class="w-4 h-4 text-blue-500 focus:ring-blue-500 focus:ring-2"> <span class="text-white font-medium">in (Zoll)</span> </label>
+                    </div>
+                </div>
+            </div>
+        </div><!-- Modal Footer -->
+        <div class="flex items-center justify-end gap-3 p-6 border-t border-slate-700 bg-slate-800/50"><button onclick="closeSettings()" class="px-6 py-2.5 bg-slate-700 text-white rounded-lg font-medium hover:bg-slate-600 transition-colors"> Abbrechen </button> <button onclick="saveSettings()" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-medium hover:from-blue-700 hover:to-blue-600 transition-all shadow-lg shadow-blue-500/25"> Speichern </button>
+        </div>
+    </div>
+</div>
