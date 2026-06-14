@@ -24,6 +24,10 @@ const renderSummaryCard = function (label, value, color) {
 export async function renderDashboardListView() {
     viewManager.showLoading('Loading dashboards...');
 
+    // Always create page-actions div (for both auth and unauth users)
+    const pageActions = document.createElement('div');
+    pageActions.className = 'page-actions';
+
     try {
         const dashboards = await apiClient.getDashboards();
         const isAuthenticated = authManager.isAuthenticated();
@@ -36,37 +40,36 @@ export async function renderDashboardListView() {
         const totalWidgets = dashboards.reduce((sum, d) =>
             sum + d.getSections().reduce((s, section) => s + (section.widgets?.length || 0), 0), 0);
 
-        container.innerHTML = `
-            <!-- Header -->
-            <div class="page-header">
-                <div>
-                    <h1>${i18n.t('DASHBOARDS') || 'Dashboards'}</h1>
-                    <p>${i18n.t('DASHBOARDS_DESCRIPTION') || 'Manage your custom dashboards'}</p>
-                </div>
-                ${isAuthenticated ? `
-                    <div class="page-actions">
-                        <button id="create-dashboard-btn" class="btn-primary">
-                            <svg class="icon-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                            </svg>
-                            <span>${i18n.t('NEW_DASHBOARD') || 'New Dashboard'}</span>
-                        </button>
-                    </div>
-                ` : ''}
-            </div>
-            
-            <!-- Dashboards List -->
-            <div class="dashboard-list list-rows"></div>
-            
-            <!-- Summary Stats -->
-            <div class="summary-stats">
-                ${renderSummaryCard(i18n.t('TOTAL_SUM') || 'Total', dashboards.length, 'blue')}
-                ${renderSummaryCard(i18n.t('SECTIONS') || 'Sections', totalSections, 'emerald')}
-                ${renderSummaryCard(i18n.t('WIDGETS') || 'Widgets', totalWidgets, 'amber')}
+        // Header Section
+        const header = document.createElement('div');
+        header.className = 'page-header';
+        header.innerHTML = `
+            <div>
+                <h1>${i18n.t('DASHBOARDS') || 'Dashboards'}</h1>
+                <p>${i18n.t('DASHBOARDS_DESCRIPTION') || 'Manage your custom dashboards'}</p>
             </div>
         `;
 
-        const dashboardListElement = container.querySelector('.dashboard-list');
+        if (isAuthenticated) {
+            const createBtn = document.createElement('button');
+            createBtn.id = 'create-dashboard-btn';
+            createBtn.className = 'btn-primary';
+            createBtn.innerHTML = `
+                <svg class="icon-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span>${i18n.t('NEW_DASHBOARD') || 'New Dashboard'}</span>
+            `;
+            createBtn.onclick = () => showCreateDashboardDialog();
+            pageActions.appendChild(createBtn);
+        }
+
+        header.appendChild(pageActions);
+        container.appendChild(header);
+
+        // Dashboards List
+        const dashboardListElement = document.createElement('div');
+        dashboardListElement.className = 'dashboard-list list-rows';
 
         if (dashboards.length === 0) {
             // Empty state
@@ -100,18 +103,75 @@ export async function renderDashboardListView() {
             });
         }
 
-        // Add create button handler
-        if (isAuthenticated) {
-            const createBtn = container.querySelector('#create-dashboard-btn');
-            if (createBtn) {
-                createBtn.onclick = () => showCreateDashboardDialog();
-            }
-        }
+        container.appendChild(dashboardListElement);
+
+        // Summary Stats
+        const summaryStats = document.createElement('div');
+        summaryStats.className = 'summary-stats';
+        summaryStats.innerHTML = `
+            ${renderSummaryCard(i18n.t('TOTAL_SUM') || 'Total', dashboards.length, 'blue')}
+            ${renderSummaryCard(i18n.t('SECTIONS') || 'Sections', totalSections, 'emerald')}
+            ${renderSummaryCard(i18n.t('WIDGETS') || 'Widgets', totalWidgets, 'amber')}
+        `;
+        container.appendChild(summaryStats);
 
         viewManager.render(container);
     } catch (error) {
         console.error('Error rendering dashboard list view', error);
         viewManager.showError(error.message);
+    }
+
+    // Create reload button AFTER try/catch (always available for retry)
+    if (pageActions) {
+        const reloadBtn = document.createElement('button');
+        reloadBtn.id = 'reload-dashboards-btn';
+        reloadBtn.className = 'btn-secondary';
+        reloadBtn.setAttribute('aria-label', i18n.t('RELOAD_DASHBOARDS') || 'Reload dashboards');
+        reloadBtn.innerHTML = `
+            <svg class="icon-medium btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <span>${i18n.t('RELOAD_DASHBOARDS') || 'Reload dashboards'}</span>
+        `;
+        reloadBtn.onclick = handleReloadDashboards;
+        // Insert before any existing buttons (New Dashboard, etc.)
+        if (pageActions.firstChild) {
+            pageActions.insertBefore(reloadBtn, pageActions.firstChild);
+        } else {
+            pageActions.appendChild(reloadBtn);
+        }
+    }
+}
+
+/**
+ * Handle reload/refresh of the dashboard list view
+ */
+async function handleReloadDashboards() {
+    const reloadBtn = document.getElementById('reload-dashboards-btn');
+    if (!reloadBtn) return;
+
+    // Set loading state
+    reloadBtn.classList.add('loading');
+    reloadBtn.disabled = true;
+
+    try {
+        // Re-fetch dashboards from API
+        const dashboards = await apiClient.getDashboards();
+
+        // Restore button state before re-render (button will be replaced)
+        reloadBtn.classList.remove('loading');
+        reloadBtn.disabled = false;
+
+        // Re-render the view with fresh data
+        await renderDashboardListView();
+    } catch (error) {
+        console.error('Error reloading dashboards:', error);
+        // Restore button state on error
+        if (reloadBtn) {
+            reloadBtn.classList.remove('loading');
+            reloadBtn.disabled = false;
+        }
+        alert(error.message || i18n.t('ERROR_LOADING_WIDGET') || 'Failed to reload dashboards');
     }
 }
 

@@ -13,6 +13,10 @@ export async function renderDashboardDetailView(params) {
 
     const {id} = params;
 
+    // Always create page-actions div (for both auth and unauth users)
+    const pageActions = document.createElement('div');
+    pageActions.className = 'page-actions';
+
     try {
         const dashboard = await apiClient.getDashboard(id);
         const isAuthenticated = authManager.isAuthenticated();
@@ -37,9 +41,6 @@ export async function renderDashboardDetailView(params) {
         `;
 
         if (isAuthenticated) {
-            const actions = document.createElement('div');
-            actions.className = 'page-actions';
-
             const addSectionBtn = document.createElement('button');
             addSectionBtn.className = 'btn-primary';
             addSectionBtn.innerHTML = `
@@ -49,11 +50,10 @@ export async function renderDashboardDetailView(params) {
                 <span>${i18n.t('ADD_SECTION') || 'Add Section'}</span>
             `;
             addSectionBtn.onclick = () => showAddSectionDialog(dashboard);
-
-            actions.appendChild(addSectionBtn);
-            header.appendChild(actions);
+            pageActions.appendChild(addSectionBtn);
         }
 
+        header.appendChild(pageActions);
         container.appendChild(header);
 
         // Render sections
@@ -82,6 +82,27 @@ export async function renderDashboardDetailView(params) {
     } catch (error) {
         console.error('Error rendering dashboard detail view', error);
         viewManager.showError(error.message);
+    }
+
+    // Create reload button AFTER try/catch (always available for retry)
+    if (pageActions) {
+        const reloadBtn = document.createElement('button');
+        reloadBtn.id = 'reload-dashboard-btn';
+        reloadBtn.className = 'btn-secondary';
+        reloadBtn.setAttribute('aria-label', i18n.t('RELOAD_DASHBOARD') || 'Reload dashboard');
+        reloadBtn.innerHTML = `
+            <svg class="icon-medium btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <span>${i18n.t('RELOAD_DASHBOARD') || 'Reload dashboard'}</span>
+        `;
+        reloadBtn.onclick = async () => handleReloadDashboard({ id: params?.id });
+        // Insert before any existing buttons
+        if (pageActions.firstChild) {
+            pageActions.insertBefore(reloadBtn, pageActions.firstChild);
+        } else {
+            pageActions.appendChild(reloadBtn);
+        }
     }
 }
 
@@ -636,5 +657,37 @@ async function deleteWidget(widget, section, dashboard) {
     } catch (error) {
         console.error('Error deleting widget:', error);
         alert(error.message || i18n.t('ERROR_DELETING_WIDGET') || 'Failed to delete widget');
+    }
+}
+
+/**
+ * Handle reload/refresh of the dashboard detail view
+ */
+async function handleReloadDashboard(dashboard) {
+    const reloadBtn = document.getElementById('reload-dashboard-btn');
+    if (!reloadBtn) return;
+
+    // Set loading state
+    reloadBtn.classList.add('loading');
+    reloadBtn.disabled = true;
+
+    try {
+        // Re-fetch dashboard data from API
+        const updatedDashboard = await apiClient.getDashboard(dashboard.id);
+
+        // Restore button state before re-render (button will be replaced)
+        reloadBtn.classList.remove('loading');
+        reloadBtn.disabled = false;
+
+        // Re-render the view with fresh data
+        await renderDashboardDetailView({ id: updatedDashboard.id });
+    } catch (error) {
+        console.error('Error reloading dashboard:', error);
+        // Restore button state on error
+        if (reloadBtn) {
+            reloadBtn.classList.remove('loading');
+            reloadBtn.disabled = false;
+        }
+        alert(error.message || i18n.t('ERROR_LOADING_WIDGET') || 'Failed to reload dashboard');
     }
 }
