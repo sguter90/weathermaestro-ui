@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Space-saving mobile layout: metric widgets now display two per row on phones (mobile-first `.widgets-grid`), with compact widget sizing (fonts, padding, proportional SVG scaling) so all information still fits
+- SensorGroup widgets remain full-width on mobile for readability; they scale to the multi-column grid on tablet/desktop
+
+### Changed
+
+- `.widgets-grid` is now mobile-first: 2-column base, scaling to 2 columns at ≥768px and 3 columns at ≥1024px (replaces the previous `auto-fill minmax(300px)` layout)
+- `MetricCard` base styles cap SVG visualizations to `max-width: 100px` / `max-height: 110px` on mobile so both wide gauges and the tall thermometer shrink proportionally
+
 ## [2.1.1] - 2026-06-14
 
 ### Fixed
