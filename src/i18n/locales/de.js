@@ -242,4 +242,6 @@ export const de = {
     CONFIRM_DELETE_WIDGET: 'Sind Sie sicher, dass Sie dieses Widget löschen möchten?',
     DELETE_DASHBOARD_WARNING: 'Die Aktion kann nicht rückgängig gemacht werden',
     DELETE_DASHBOARD_DESCRIPTION: 'Alle Sektionen und Widgets in diesem Dashboard werden entfernt.',
+    RELOAD_DASHBOARD: 'Neu laden',
+    RELOAD_DASHBOARDS: 'Neu laden',
 };
