@@ -1,18 +1,43 @@
-/* Widgets Grid */
+/* Widgets Grid — mobile-first
+ *
+ * Base (mobile, < 768px): two metric widgets per row to use the screen
+ * efficiently, with a reduced gap to save horizontal space. Larger
+ * viewports scale up via the min-width queries below.
+ */
 .widgets-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+/*
+ * SensorGroup grids stay single-column (full width) on mobile.
+ * Their tabular "label left / value right" layout needs the full
+ * card width to remain readable, so only the individual metric
+ * widgets go two-per-row.
+ */
+.widgets-grid--groups {
+    grid-template-columns: 1fr;
 }
 
 @media (min-width: 768px) {
     .widgets-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    /* On tablets/desktop SensorGroups can share the multi-column grid */
+    .widgets-grid--groups {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (min-width: 1024px) {
     .widgets-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .widgets-grid--groups {
         grid-template-columns: repeat(3, 1fr);
     }
 }

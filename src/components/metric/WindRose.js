@@ -39,9 +39,11 @@ export class WindRose extends MetricCard {
             }
 
             @media (max-width: 640px) {
+                /* Shrink the wind rose further on mobile (overrides the
+                   generic 100px rule from MetricCard for this specific SVG). */
                 .wind-rose-svg {
-                    width: 120px;
-                    height: 120px;
+                    width: 96px;
+                    height: 96px;
                 }
             }
         `
