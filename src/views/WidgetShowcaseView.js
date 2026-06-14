@@ -36,7 +36,7 @@ export class WidgetShowcaseView {
                 </div>
 
                 <!-- Widgets Grid -->
-                <div class="widgets-grid" id="widgets-grid">
+                <div class="widgets-grid showcase" id="widgets-grid">
                     ${Object.entries(this.widgetConfigs).map(([key, config]) => `
                           <div class="widget-card-container" data-widget-type="${key}">
                             <!-- Widget Header -->
