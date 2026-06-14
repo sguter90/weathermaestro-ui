@@ -4,6 +4,7 @@
   flex-direction: column;
   overflow: auto;
   scrollbar-width: thin;
+  overscroll-behavior-y: none;
 }
 
 /* Scrollbar styling für Chrome/Safari */
