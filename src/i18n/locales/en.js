@@ -242,6 +242,6 @@ export const en = {
     CONFIRM_DELETE_WIDGET: 'Are you sure you want to delete this widget?',
     DELETE_DASHBOARD_WARNING: 'This action cannot be undone',
     DELETE_DASHBOARD_DESCRIPTION: 'All sections and widgets in this dashboard will be permanently deleted.',
-    RELOAD_DASHBOARD: 'Reload dashboard',
-    RELOAD_DASHBOARDS: 'Reload dashboards',
+    RELOAD_DASHBOARD: 'Reload',
+    RELOAD_DASHBOARDS: 'Reload',
 };
