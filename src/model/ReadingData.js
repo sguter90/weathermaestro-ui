@@ -15,7 +15,6 @@ export class ReadingData {
             this.isAggregated = true;
         } else {
             // Standard response format
-            this.id = data.id;
             this.sensorId = data.sensor_id;
             this.value = typeof data.value === 'number' ? Math.round(data.value * 100) / 100 : data.value;
             this.dateUTC = data.date_utc ? new Date(data.date_utc) : null;
